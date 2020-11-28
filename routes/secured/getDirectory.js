@@ -1,6 +1,6 @@
 var fs = require('fs');
 var path = require('path');
-const { exec } = require("child_process");
+const { execSync } = require("child_process");
 exports.getDirectory = function (req,res) {
     var location = req.body.location;
     const files = fs.readdirSync(location);
@@ -49,12 +49,22 @@ function getPropertyOfItem(item){
 
 function getPermissionsOfItem(item){
     let permissions = {
-        owner:"",
-        
+        owner:"",//++
+        read:false,
+        write:false,
+        execute:false,
     }
+    const ownerName = execSync(`ls -ld ${item} | awk {'print $3'}`);
+    //const
 }
-function getSharedUsers(){
-
+function getSharedUsersWithPermissionOfItem(){
+    let sharedUsers = [];
+    let sharedUserStruct = {
+        username:"",
+        read:false,
+        write:false,
+        execute:false
+    }
 }
 /*
 [
