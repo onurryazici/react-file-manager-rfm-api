@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 const { execSync, exec, spawnSync, spawn } = require("child_process");
+const { parse } = require('path');
 exports.getDirectory = function (req,res) {
     var location = encodeURI(req.body.location);
     var username = req.body.username;
@@ -23,13 +24,12 @@ exports.getDirectory = function (req,res) {
     
     const outputStack = [];
     sorted.forEach((item) => {
-        var itemPath = location + "/" +item;
-
-    
-        var properties  = getPropertyOfItem(itemPath); ////////////////////+++
-        var permissions = getUserOwnPermissionsOfItem(itemPath, username);
-        var sharedWith  = [getSharedUsersWithPermissionOfItem(itemPath)];
-        var output      = Object.assign({},properties, permissions,sharedWith);
+        var unformattedPath = location + "/" +item;
+        var formattedPath   = unformattedPath.replace(/\s/g,'\\ ');
+        var properties      = getPropertyOfItem(unformattedPath); ////////////////////+++
+        var permissions     = getUserOwnPermissionsOfItem(formattedPath, username);///+++
+        var sharedWith      = [getSharedUsersWithPermissionOfItem(formattedPath)];
+        var output          = Object.assign({},properties, permissions,sharedWith)
         outputStack.push(output);
     })
     return res.json({items:outputStack});
@@ -58,25 +58,23 @@ function getPropertyOfItem(item){
     return properties;
 }
 ////++++
-function getOwnerNameOfItem(item){
-    const itemPath = item.replace(/\s/g,'\\ ');
-    const ownerName = execSync(`ls -ld ${itemPath} | awk {'print $3'}`).toString().trimEnd(); // GET OWNER NAME output:username
+function getOwnerNameOfItem(itemPath){
+    var ownerName = execSync(`ls -ld ${itemPath} | awk {'print $3'}`).toString().trimEnd(); // GET OWNER NAME output:username
     return ownerName;
 }
 /////++++
-function getUserOwnPermissionsOfItem(item,usernameParam){
+function getUserOwnPermissionsOfItem(itemPath,usernameParam){
     let permissions = {
         canRead:false, 
         canWrite:false,
         canExecute:false,
     }
-    const itemPath = item.replace(/\s/g,'\\ ');
-    const ownerName = getOwnerNameOfItem(item);
-    const userIsowner = (ownerName === usernameParam) ? true : false;
-    const command = (userIsowner) 
+    var ownerName = getOwnerNameOfItem(itemPath);
+    var userIsowner = (ownerName === usernameParam) ? true : false;
+    var command = (userIsowner) 
         ? `getfacl -cp ${itemPath} | grep 'user::'`
         : `getfacl -cp ${itemPath} | grep 'user:${usernameParam}:'`;
-    const commandOutput = spawnSync('sh',['-c',command],{encoding:'utf8'}).stdout;
+    var commandOutput = spawnSync('sh',['-c',command],{encoding:'utf8'}).stdout;
     /////// OUTPUT FORMAT //////////////
     //
     //     user  :    USERNAME     :   rwx
@@ -85,8 +83,8 @@ function getUserOwnPermissionsOfItem(item,usernameParam){
     ////////////////////////////////////
     if(commandOutput.length!==0)
     {
-        const parsed = commandOutput.split(":"); 
-        const rwx = parsed[2];
+        var parsed = commandOutput.split(":"); 
+        var rwx = parsed[2];
         (rwx.charAt(0)==="r")?
             permissions.canRead = true
             : permissions.canRead = false;
@@ -110,63 +108,59 @@ function getUserOwnPermissionsOfItem(item,usernameParam){
     return permissions;
 }
 //////////////// !!!!!!
-function getSharedUsersWithPermissionOfItem(item){
-    let sharedWith = [];
-    let struct = {
+function getSharedUsersWithPermissionOfItem(itemPath){
+    var sharedWith = [];
+    var struct = {
         username:"",
         read:false,
         write:false,
         execute:false
     }
-    const itemPath = item.replace(/\s/g,'\\ ');
-    const command = `getfacl -cp ${itemPath} | grep 'user:'`;
-    const commandOutput = spawnSync('sh',['-c',command],{encoding:'utf8'}).stdout;
+    var command = `getfacl -cp ${itemPath} | grep 'user:'`;
+    var commandOutput = spawnSync('sh',['-c',command],{encoding:'utf8'}).stdout;
     // ////////// COMMAND OUTPUT FORMAT /////////////
     // user     :   user1      :    rwx \n  | line[0]   FIRST LINE IS OWNER.
     // user     :   user2      :    r-x \n  | line[1]
     // user     :   user3      :    --x \n  | line[2]
     //  data[0] :  data[1]     :    data[2] | .......   
     /////////////////////////////////////////////////
-    console.log("Command  : " + command);
-    console.log("Item     : " + itemPath);
-    console.log("Result   : \n" + commandOutput);
-    console.log("===================");
+    
     var lines = commandOutput.split('\n');
 
-    for(let i=0 ; i < lines.length ; i++)
+    for(let i=0 ; i < lines.length -1; i++)
     {    
-        var parsed         = lines[i].toString().split(':'); // OUTPUT ARRAY: [user,USER_NAME,rwx]
-        var username       = parsed[1];
+        var parsed = lines[i].toString().split(':'); // OUTPUT ARRAY: [user,USER_NAME,rwx]
+        var username = parsed[1];
         
         let owner = "";
-        if(username!=='')
+        let isOwner = false;
+        if(username==="")
         {
-            
+            owner = getOwnerNameOfItem(itemPath);
+            isOwner = true;
+            username = owner;
         }
-        else
-        {
-            // IF USER IS OWNER
-            const owner = getOwnerNameOfItem(itemPath);
-        }
+
         var userPermission = parsed[2];
-            //console.log("ITEM     : " + item);
-            //console.log("LINE     : " + lines[i]);
-            //console.log("USERNAME : " +username.length);
-        userPermission.charAt(0)==="r" 
+        console.log("Command  : " + command);
+        console.log("Item     : " + itemPath);
+        console.log("Result   : " + commandOutput);
+        console.log("Username : " + username);
+        userPermission.charAt(0)==='r' 
             ? struct.read = true
             : struct.read = false;
-        userPermission.charAt(1)==="w" 
+        userPermission.charAt(1)==='w' 
             ? struct.write=true
             : struct.write=false;
-        userPermission.charAt(2)==="x" || userPermission[2]==="X" 
+        userPermission.charAt(2)==='x' || userPermission[2]==='X' 
             ? struct.execute=true
             : struct.execute=false;
                 
         struct.username=username;
         sharedWith.push(struct);
-        //console.log("------------------------------");
+        console.log("------------------------------");
     }
-    //console.log("=======================");
+    console.log("=======================");
     return sharedWith;
 }
 /*
