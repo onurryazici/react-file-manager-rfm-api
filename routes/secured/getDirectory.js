@@ -1,9 +1,9 @@
 var fs = require('fs');
 var helpers = require('../../helper/functions/functions');
 exports.getDirectory = function (req,res) {
-    var location = req.body.location || req.query.location;
+    var encryptedLocation = req.query.location;
     var username = req.body.username || req.query.username;
-
+    var location = Buffer.from(encryptedLocation,'base64').toString('ascii');
     const files  = fs.readdirSync(location);
     const sorted = files.sort((itemA,itemB)=>{
         var statA = fs.statSync(location + "/" + itemA);
@@ -19,7 +19,6 @@ exports.getDirectory = function (req,res) {
             return itemA.localeCompare(itemB); 
         }   
     });
-    
     const outputStack = [];
     sorted.forEach((item) => {
         var unformattedPath = location + "/" +item;
