@@ -2,38 +2,46 @@ var Client = require('ssh2').Client;
 const { execSync, exec, spawnSync } = require("child_process");
 
 var API_FUNCTIONS = require('../../helper/functions/functions');
-
+var terminal = require('../../helper/global');
 exports.userAuthentication = function(req,res){
 
-    
-    //var ip = req.headers["X-Forwarded-For"] || req.connection.remoteAddress;
-    var ip = "192.168.1.159";
-    var banned = API_FUNCTIONS.isIpBanned(ip);
+    let username_api = req.body.username;
+    let password_api = req.body.password;
+
+    //let ip = req.headers["X-Forwarded-For"] || req.connection.remoteAddress;
+    let ip = "192.168.1.159";
+    let banned = API_FUNCTIONS.isIpBanned(ip);
+
     if(banned){
         return res.json({
-            statu:"banned"
+            statu   : false,
+            banned  : true,
+            message : "IP banned for 10 minutes"
         })
     }
-    else{
-        var connection = new Client();
-        connection 
+    else{        
+        terminal.SSH
             .on('ready',() => {
                 return res.json({
-                    statu:true,
-                    message:"Giriş başarılı"
+                    statu            : true,
+                    loginSuccessfull : true,
+                    message          : "Login successfull"
                 });
             })
             .on('error',(err)=>{
-                console.log("hata var " + err);
-                return res.json({sonuc:"hata var " + err})
+                return res.json({
+                    statu            : true,
+                    loginSuccessfull : false,
+                    message          : "There is no such user or your password is wrong"
+                });
         }).connect({
-            host: '127.0.0.1',
-            port:22,
-            username:'onur',
-            password:'qweqweasd'
-        })
+            host              : '127.0.0.1',
+            port              : 22,
+            username          : username_api,
+            password          : password_api,
+            keepaliveInterval : 10000, // 10 dk ms cinsinde idle 
+            keepaliveCountMax : 2,
+        });
+        
     }
-    console.log(ip);
-    
-    
 }

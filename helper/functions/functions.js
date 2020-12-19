@@ -140,11 +140,9 @@ module.exports = {
         var commandOutput = spawnSync('sh',['-c',command],{encoding:'utf8'}).stdout;
         
         if(commandOutput.length > 0){
-            console.log("AAAAAAAAAAAA" + commandOutput);
             return true;
         }
         else {
-            console.log("BBBBBBBBBBB" + commandOutput);
             return false;
         }
     }
