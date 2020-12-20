@@ -87,9 +87,9 @@ module.exports = {
         /////////////////////////////////////////////////
         
         var lines = commandOutput.split('\n');
-        console.log("Command  : " + command);
+        /*console.log("Command  : " + command);
         console.log("Item     : " + itemPath);
-        console.log("Result   : " + commandOutput);
+        console.log("Result   : " + commandOutput);*/
         for(let i=0 ; i < (lines.length -1); i++)
         {    
             var struct = {

@@ -39,9 +39,8 @@ exports.userAuthentication = function(req,res){
             port              : 22,
             username          : username_api,
             password          : password_api,
-            keepaliveInterval : 10000, // 10 dk ms cinsinde idle 
-            keepaliveCountMax : 2,
+            keepaliveInterval : 10 * 1000, // 10 minutes for idle as milliseconds. details >> npmjs 
+            keepaliveCountMax : 1,
         });
-        
     }
 }

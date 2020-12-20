@@ -2,14 +2,16 @@ var fs = require('fs');
 var helpers = require('../../helper/functions/functions');
 
 exports.getDirectory = function (req,res) {
-    var encryptedLocation = req.query.location;
-    var username = req.query.username;
-    var showHiddenFiles = (req.query.showHiddenFiles === "yes") ? true : false;
-    var location = Buffer.from(encryptedLocation,'base64').toString('ascii');
-    const files  = fs.readdirSync(location);
-    const sorted = files.sort((itemA,itemB)=>{
-        var statA = fs.statSync(location + "/" + itemA);
-        var statB = fs.statSync(location + "/" + itemB);
+    var encryptedLocation   = req.query.location;
+    var username            = req.query.username;
+    var showHiddenFiles     = (req.query.showHiddenFiles === "yes") ? true : false;
+    var location            = Buffer.from(encryptedLocation,'base64').toString('ascii');
+    const files             = fs.readdirSync(location);
+
+    const sorted = files.sort((itemA,itemB) => {
+        var statA               = fs.statSync(location + "/" + itemA);
+        var statB               = fs.statSync(location + "/" + itemB);
+
         if(statA.isDirectory() && !statB.isDirectory()){
             return -1; 
         }
