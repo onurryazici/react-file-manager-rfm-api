@@ -2,15 +2,11 @@ var express = require('express');
 var router = express.Router();
 const { getDirectory } = require('./secured/getDirectory');
 const { userAuthentication } = require('./open-service/user-authentication');
+const { createDirectory } = require('./secured/createDirectory');
 
-const options = {
-    username: 'user2',
-    password: 'qweqweasd',
-};
-
-router.get('/getDirectory',getDirectory );
-
-
-
+router.get('/getDirectory',getDirectory ); // POSTA ÇEVİR
 router.post('/userAuthentication', userAuthentication );
+
+router.get('/createDirectory',createDirectory);
+
 module.exports = router;

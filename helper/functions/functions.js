@@ -1,7 +1,7 @@
 
 var fs = require('fs');
 var path = require('path');
-const { execSync, exec, spawnSync } = require("child_process");
+const { execSync, spawnSync } = require("child_process");
 
 module.exports = {
     getPropertyOfItem :function(item){

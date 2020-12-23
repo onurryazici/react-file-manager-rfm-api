@@ -1,36 +1,39 @@
-var Client = require('ssh2').Client;
 const { execSync, exec, spawnSync } = require("child_process");
-
 var API_FUNCTIONS = require('../../helper/functions/functions');
-var terminal = require('../../helper/global');
+var API = require('../../helper/global');
+var Client = require('ssh2').Client;
+var SSH = new Client();
 exports.userAuthentication = function(req,res){
 
     let username_api = req.body.username;
     let password_api = req.body.password;
 
+    
     //let ip = req.headers["X-Forwarded-For"] || req.connection.remoteAddress;
     let ip = "192.168.1.159";
     let banned = API_FUNCTIONS.isIpBanned(ip);
 
     if(banned){
-        return res.json({
+         res.json({
             statu   : false,
             banned  : true,
             message : "IP banned for 10 minutes"
-        })
+        });
     }
     else{        
-        terminal.SSH
+        SSH
             .on('ready',() => {
-                return res.json({
+                res.status(200).json({
                     statu            : true,
                     loginSuccessfull : true,
                     message          : "Login successfull"
                 });
             })
             .on('error',(err)=>{
-                return res.json({
-                    statu            : true,
+
+                /***************HATA BURADA  */
+                res.status(400).json({
+                    statu            : false,
                     loginSuccessfull : false,
                     message          : "There is no such user or your password is wrong"
                 });
