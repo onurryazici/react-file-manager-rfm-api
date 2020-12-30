@@ -1,7 +1,6 @@
 const { NodeSSH } = require('node-ssh');
-var API_FUNCTIONS = require('../../helper/functions/functions');
 var API           = require('../../helper/SSH_SESSION');
-
+var API_FUNCTIONS = require('../../helper/functions');
 exports.userAuthentication = function(req,res){
     //let ip = req.headers["X-Forwarded-For"] || req.connection.remoteAddress;
     let ip = "192.168.1.159";

@@ -20,7 +20,7 @@ function executeSshCommand(command) {
             var commandOutput = result.stdout.toString();
             resolve(commandOutput);
         }).catch((err)=>{
-            // Nothing
+            reject(err);
         })
     });
 }
