@@ -1,8 +1,5 @@
 var API      = require('../../helper/SSH_SESSION');
-var API_ROOT = require('../../helper/API_ROOT'); // In root will be absolute path to your ../../helper/APP_ROOT
 
-var path = require('path');
-var appDir = path.dirname(require.main.filename);
 exports.getDirectory = async function (req,res) {
     var SSH_Connection      = API.getSSH();
     var encryptedLocation   = req.query.location;
