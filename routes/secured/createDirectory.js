@@ -41,16 +41,3 @@ exports.createDirectory = async function (req,res) {
         });
     }
 }
-/*
-var output = connection.exec('ls', function(err, stream) {
-    if (err) throw err;
-    stream.on('close', function(code, signal) { // komut çalıştıktan sonra gelen kısım
-      console.log('Stream :: close :: code: ' + code + ', signal: ' + signal); 
-      connection.end();
-    }).on('data', function(data) {
-      console.log('STDOUT: ' + data);
-    }).stderr.on('data', function(data) {
-      console.log('STDERR: ' + data);
-    });
-  });
-  */
