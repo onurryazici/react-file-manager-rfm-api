@@ -14,7 +14,6 @@ exports.createDirectory = async function (req,res) {
       SSH_Connection.connection.sftp((sftp_err,sftp) => {
             if (sftp_err)
               res.status(400).json({statu:false,message:"UNKNOWN_ERROR"});
-             
             sftp.mkdir(newDirectoryPath, function(error) {
             if (error) {
               switch(error.code){
@@ -37,7 +36,7 @@ exports.createDirectory = async function (req,res) {
     else{
         res.json({
             statu:false,
-            message:"Session not started"
+            message:"SESSION_NOT_STARTED"
         });
     }
 }

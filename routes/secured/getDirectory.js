@@ -19,7 +19,7 @@ exports.getDirectory = async function (req,res) {
     else{
         res.json({
             statu:false,
-            message:"Session not started"
+            message:"SESSION_NOT_STARTED"
         });
     }
 }
