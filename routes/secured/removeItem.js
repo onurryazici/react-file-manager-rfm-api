@@ -14,6 +14,7 @@ exports.removeItem = function (req,res) {
         decryptedItems.push(itemName);
       }
       var hasError = false;
+      var errorCode;
       SSH_Connection.connection.sftp((sftp_err,sftp) => {
         if (sftp_err)
           res.status(400).json({statu:false,message:"UNKNOWN_ERROR"});
@@ -23,11 +24,12 @@ exports.removeItem = function (req,res) {
           sftp.rename(item,(recycle_location + "/" + tempName),(error)=> {
             if (error) {
               hasError=true;
+              errorCode = error.code;
             } 
           });
         } 
         if(hasError){
-          switch(error.code){
+          switch(errorCode){
             case 2:
               res.status(400).json({statu:false,message:"BAD_DIRECTORY"});
               break;
