@@ -4,12 +4,14 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var bodyParser = require('body-parser');              //////////////////////////////////////
+const config = require('./config');                   //////////////////////////////////////
+const verifyToken = require('./middleware/verifyToken');///// Middleware //////////////////
 var appRouter = require('./routes/route');
-const verifyToken = require('./middleware/verifyToken');
 var cors = require('cors');                           // Different ports for backend and frontend //
 
 
 var app = express();
+app.set('api_secret_key',config.api_secret_key);      //////////////////////////////////////  
 app.use(bodyParser.urlencoded({ extended: true }));   //////////////////////////////////////
 app.use(bodyParser.json());                           //////////////////////////////////////
 // view engine setup
@@ -21,7 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors());                                    //////////////////////////////////////
+app.use(cors());                                      //////////////////////////////////////
 app.use('/api/secured', verifyToken);
 app.use('/api', appRouter);
 

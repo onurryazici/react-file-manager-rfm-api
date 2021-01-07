@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { Messages } = require('../helper/message');
 
 module.exports = (req,res,next) => {
     const token = req.headers['x-access-token'] || req.body.token || req.query.token;
@@ -6,9 +7,9 @@ module.exports = (req,res,next) => {
         jwt.verify(token,req.app.get('api_secret_key'),(err,decoded)=>{
             if(err){
                 res.json({
-                    "statu":false,
-                    "message":"Failed to authenticate token",
-                    "details":err
+                    statu:false,
+                    message:Messages.FAILED_AUTHENTICATE_TOKEN,
+                    details:err
                 })
             }
             else{
@@ -19,8 +20,8 @@ module.exports = (req,res,next) => {
     }
     else{
         res.json({
-            "statu":false,
-            "message": 'No token provided'
+            statu:false,
+            message: Messages.TOKEN_NOT_PROVIDED
         })
     }
 }

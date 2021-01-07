@@ -10,7 +10,7 @@ exports.userAuthentication = function(req,res){
          res.json({
             statu   : false,
             banned  : true,
-            message : "IP banned for 10 minutes"
+            message : "IP_BANNED"
         });
     }
     else{     
@@ -28,14 +28,14 @@ exports.userAuthentication = function(req,res){
             res.status(200).json({
                 statu            : true,
                 loginSuccessfull : true,
-                message          : "Login successfull"
+                message          : "LOGIN_SUCCESSFULL"
             });
         }).catch((error)=>{
             API.setSSH(null);
             res.status(400).json({
                 statu            : false,
                 loginSuccessfull : false,
-                message          : "There is no such user or your password is wrong"
+                message          : "INCORRECT_LOGIN"
             });
         });
     }

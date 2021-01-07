@@ -2,8 +2,6 @@
 var fs = require('fs');
 var path = require('path');
 const { execSync, spawnSync } = require("child_process");
-var API     =require('./SSH_SESSION');
-var helper = require('./functions');
 module.exports = {
     isIpBanned: function(userIp){
         /*

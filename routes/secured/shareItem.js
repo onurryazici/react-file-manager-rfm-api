@@ -5,13 +5,6 @@ exports.shareItem = function (req,res) {
     var encryptedItems = req.query.items;
     var decryptedItems = [];
     var userAndPermissions = req.query.users;
-    
-    var shareConfig={
-        username:"",
-        read:false,
-        write:false,
-        execute:false,
-    };
 
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
@@ -24,8 +17,6 @@ exports.shareItem = function (req,res) {
         userAndPermissions.map((data) => {
             users_val.push("u:" + data);
         });
-
-
 
         var command = `setfacl -Rm ${users_val} ${decryptedItems.join(' ')}`;
         API.executeSshCommand(command)

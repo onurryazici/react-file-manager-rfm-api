@@ -1,6 +1,9 @@
 var API = require('../../helper/SSH_SESSION');
 
 exports.removeItem = function (req,res) {
+  /// INPUTS
+  /// "items[]" :  Encoded Item's absolute path with base64
+
     var SSH_Connection = API.getSSH();
     var SSH_User       = API.getUsername();
     var encryptedItems = req.query.items;
@@ -32,9 +35,6 @@ exports.removeItem = function (req,res) {
           switch(errorCode){
             case 2:
               res.status(400).json({statu:false,message:"BAD_DIRECTORY"});
-              break;
-            case 4:
-              res.status(400).json({statu:false,message:"ITEM_ALREADY_EXISTS"});
               break;
             default:
               res.status(400).json({statu:false,message:"UNKNOWN_ERROR"});
