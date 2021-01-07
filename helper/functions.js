@@ -1,7 +1,7 @@
 
 var fs = require('fs');
 var path = require('path');
-const { execSync, spawnSync } = require("child_process");
+const { spawnSync } = require("child_process");
 module.exports = {
     isIpBanned: function(userIp){
         /*
