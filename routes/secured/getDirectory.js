@@ -1,3 +1,4 @@
+const Messages = require('../../helper/message');
 var API      = require('../../helper/SSH_SESSION');
 
 exports.getDirectory = async function (req,res) {
@@ -19,7 +20,7 @@ exports.getDirectory = async function (req,res) {
     else{
         res.json({
             statu:false,
-            message:"SESSION_NOT_STARTED"
+            message:Messages.SESSION_NOT_STARTED
         });
     }
 }
