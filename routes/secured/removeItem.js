@@ -13,7 +13,7 @@ exports.removeItem = function (req,res) {
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
       var promises=[];
-      var errors=[];
+
       SSH_Connection.connection.sftp((sftp_err,sftp) => {
         if (sftp_err)
             reject({statu:false,message:"UNKNOWN_ERROR"});
@@ -25,18 +25,13 @@ exports.removeItem = function (req,res) {
               .then(()=>{
               Promise.all(promises)
                 .then((data)=>{
-                  console.log("calisti");
-                  res.status(200).json({statu:true,message:"ITEM_REMOVE_SUCCESS",value:data});
-                }).catch((err)=>{
-                  errors.push(err);
-                  console.log("sorunvar " + JSON.stringify(err));
-                  //res.status(200).json(err);
+                  res.status(200).json({statu:true,message:"ITEM_REMOVE_SUCCES"});
+                }).catch((error)=>{
+                  res.status(304).json(error);
                 })
               
             })
-            .finally(()=>{
-              console.log(errors);
-            })
+
         }
       });
     }
@@ -61,19 +56,10 @@ function HandleRemove(item,sftp,user){
       var recycleName = itemName + new Date().getTime(); // 13 length
       sftp.rename(item.toString(),(recycle_location + "/" + recycleName),(error)=> {
         if (error) {
-          switch(error.code){
-            case 2:
-              reject({statu:false,message:"BAD_LOCATION",item:itemName});
-              break;
-            case 3:
-              reject({statu:false,message:"PERMISSION_DENIED",item:itemName});
-              break;
-            default:
-              reject({statu:false,message:"UNKNOWN_ERROR",details:error,item:itemName});
-              break;
-          }
+          reject({statu:false,message:"UNKNOWN_ERROR",details:error.code})
         }
-        else resolve({statu:true,message:"REMOVE_ITEM_SUCCESS"})
+        else
+          resolve({statu:true,message:"ITEM_REMOVE_SUCCES"});
     })
   })
 }
