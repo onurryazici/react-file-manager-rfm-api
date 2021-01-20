@@ -22,17 +22,7 @@ exports.createDirectory = async function (req,res) {
             sftp.mkdir(newDirectoryPath, function(error) {
               
             if (error) {
-              switch(error.code){
-                case 2:
-                  res.status(200).json({statu:false,message:"BAD_DIRECTORY"});
-                  break;
-                case 4:
-                  res.status(200).json({statu:false,message:"DIRECTORY_ALREADY_EXISTS"});
-                  break;
-                default:
-                  res.status(200).json({statu:false,message:"UNKNOWN_ERROR"});
-                  break;
-              }
+              res.status(304).json({statu:false,message:"UNKNOWN_ERROR",details:error.code});
             } else {
               const item={
                 owner:API.getUsername(),

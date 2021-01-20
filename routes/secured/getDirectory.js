@@ -2,11 +2,11 @@ const Messages = require('../../helper/message');
 var API      = require('../../helper/SSH_SESSION');
 
 exports.getDirectory = async function (req,res) {
-    var SSH_Connection      = API.getSSH();
-    var encryptedLocation   = req.query.location;
-    var location            = Buffer.from(encryptedLocation,'base64').toString('ascii');
-    var formattedCurrentLocation   = location.replace(/\s/g,'\\ ');
-
+    var SSH_Connection           = API.getSSH();
+    var encryptedLocation        = req.query.location;
+    var location                 = Buffer.from(encryptedLocation,'base64').toString('utf-8');
+    var formattedCurrentLocation = location.replace(/\s/g,'\\ ').replace(/'/g, "\\'");
+    
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
         var command = `GetDirectoryData.run "${formattedCurrentLocation}"`;
