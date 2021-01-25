@@ -16,7 +16,7 @@ exports.removePermission = function (req,res) {
         API.executeSshCommand(`getent passwd ${user}`).then((exist)=>{
             if (exist.length > 0){
                 var itemPath = decryptedItem.replace(/\s/g,'\\ ').replace(/'/g, "\\'");
-                var command  = `setfacl -x ${"user:" + user} ${itemPath}`;
+                var command  = `setfacl -Rx ${"user:" + user} ${itemPath}`;
                 API.executeSshCommand(command)
                 .then(() => {
                     res.status(200).json({

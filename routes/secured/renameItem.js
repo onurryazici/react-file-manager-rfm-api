@@ -16,7 +16,6 @@ exports.renameItem = function (req,res) {
         if (sftp_err)
             res.status(400).json({statu:false,message:"UNKNOWN_ERROR"});   
         var itemPath = item.substring(0,item.lastIndexOf('/'));
-        sftp.rm
         sftp.rename(item,itemPath+"/"+newName,(error)=>{
             if (error) 
                 res.status(304).json({statu:false,message:"UNKNOWN_ERROR",details:error.code});
