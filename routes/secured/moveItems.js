@@ -1,10 +1,6 @@
 var API = require('../../helper/SSH_SESSION');
-var fs = require('fs');
-exports.createCopy = async function (req,res) {
-    /// INPUTS
-    /// "items"    : Encoded item path with base64
-    /// "target"   : Encoded target path of items with base64
 
+exports.moveItems = function (req,res) {
     var SSH_Connection = API.getSSH();
     var encryptedItems = req.query.items;
     var target = Buffer.from(req.query.target,'base64').toString('utf-8');
@@ -13,7 +9,7 @@ exports.createCopy = async function (req,res) {
     {
         DecryptItems(encryptedItems).then((items)=>{
             target = target.replace(/\s/g,'\\ ').replace(/'/g, "\\'");
-            let command = `cp -R -n ${items.join(' ')} ${target}`;
+            let command = `mv -t ${target} ${items.join(' ')}`;
             console.log(command);
             API.executeSshCommand(command)
                 .then(()=>{
@@ -32,8 +28,8 @@ exports.createCopy = async function (req,res) {
             message:"SESSION_NOT_STARTED"
         });
     }
-    
 }
+
 function DecryptItems(encryptedItems){
     return new Promise((resolve,reject)=>{
         let decryptedItems = []
