@@ -16,10 +16,13 @@ var storage = multer.diskStorage({
 
 var upload = multer({storage:storage}).array('file');
 
-exports.uploadItem = async function (req,res) {
+exports.uploadItem = function (req,res) {
     var SSH_Connection           = API.getSSH();
     
-    upload(req,res,function(err){
+    console.log('body', req.file.length, req.file)
+
+    res.json({ success: true })
+    /*upload(req,res,function(err){
         if(err){
             return res.status(500).json(err);
         }
@@ -36,7 +39,7 @@ exports.uploadItem = async function (req,res) {
                 }  
             })
         }
-    })
+    })*/
 
     /*var encryptedLocation        = req.query.location;
     var location                 = Buffer.from(encryptedLocation,'base64').toString('utf-8');

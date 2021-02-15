@@ -1,5 +1,5 @@
 var API = require('../../helper/SSH_SESSION');
-var fs = require('fs');
+var API_FUNCTIONS = require('../../helper/functions');
 exports.createCopy = async function (req,res) {
     /// INPUTS
     /// "items"    : Encoded item path with base64
@@ -12,8 +12,8 @@ exports.createCopy = async function (req,res) {
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
         DecryptItems(encryptedItems).then((items)=>{
-            target = target.replace(/\s/g,'\\ ').replace(/'/g, "\\'");
-            let command = `cp -R -n ${items.join(' ')} ${target}`;
+            const _target = API_FUNCTIONS.replaceSpecialChars(target);
+            let command = `cp -R -n ${items.join(' ')} ${_target}`;
             console.log(command);
             API.executeSshCommand(command)
                 .then(()=>{
@@ -39,7 +39,7 @@ function DecryptItems(encryptedItems){
         let decryptedItems = []
         encryptedItems.forEach(item => {
             let itemPath = Buffer.from(item,'base64').toString('utf-8');
-            decryptedItems.push(itemPath.replace(/\s/g,'\\ ').replace(/'/g, "\\'"));      
+            decryptedItems.push(API_FUNCTIONS.replaceSpecialChars(itemPath));      
         });
         resolve(decryptedItems);
     })

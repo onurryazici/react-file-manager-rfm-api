@@ -18,5 +18,14 @@ module.exports = {
         else {
             return false;
         }
+    },
+    replaceSpecialChars:function(_stringParam){
+        var chars = {
+            '\'':'\\\'',
+            '(':'\\(',
+            ')':'\\)',
+            '\ ': '\\\ '
+        }
+        return (_stringParam.replace(/['() ]/g, m=>chars[m]))
     }
 }
