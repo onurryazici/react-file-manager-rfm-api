@@ -24,7 +24,7 @@ module.exports = {
             '\'':'\\\'',
             '(':'\\(',
             ')':'\\)',
-            '\ ': '\\\ '
+            '\ ': '\\\ ',
         }
         return (_stringParam.replace(/['() ]/g, m=>chars[m]))
     }

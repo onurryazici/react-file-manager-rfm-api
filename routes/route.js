@@ -14,6 +14,7 @@ const { moveToTrash } = require('./secured/moveToTrash');
 const { emptyTrash } = require('./secured/emptyTrash');
 const multer = require('multer');
 const { restoreItems } = require('./secured/restoreItems');
+const { getImage } = require('./secured/getImage');
 const upload = multer();
 
 router.get('/getDirectory',getDirectory ); // POSTA ÇEVİR
@@ -28,5 +29,6 @@ router.get('/moveItems',moveItems);
 router.get('/createCopy',createCopy);
 router.get('/moveToTrash', moveToTrash);
 router.get('/emptyTrash',emptyTrash);
-router.get('/restoreItems',restoreItems);
+router.post('/restoreItems',restoreItems);
+router.get('/getImage',getImage);
 module.exports = router;
