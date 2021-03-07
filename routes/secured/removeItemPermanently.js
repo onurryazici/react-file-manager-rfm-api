@@ -6,16 +6,16 @@ exports.removeItemPermanently = function (req,res) {
     /// "location":  Location of the items
     var SSH_Connection = API.getSSH();
     var SSH_User       = API.getUsername();
-    var encryptedItems = req.query.items;
+    var unparsedItems  = req.body.items;
 
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
-          DecryptItems(encryptedItems,SSH_User).then((decryptedItems)=>{
-            var command = `rm -rf ${decryptedItems.join(' ')}`
+          ParseItems(unparsedItems,SSH_User).then((parsedItems)=>{
+            var command = `rm -rf ${parsedItems.join(' ')}`
             console.log(command)
             API.executeSshCommand(command)
             .then(()=>{
-                res.status(200).json({statu:true, message:"MOVE_TO_TRASH_SUCCESS"});
+                res.status(200).json({statu:true, message:"ITEM_REMOVE_PERMANENTLY_SUCCESS"});
             }).catch((err)=>{
                 res.status(400).json({statu:false, items:[]})
             })
@@ -25,15 +25,15 @@ exports.removeItemPermanently = function (req,res) {
           })
     }
 }
-function DecryptItems(encryptedItems,SSH_User){
+function ParseItems(unparsedItems,SSH_User){
   return new Promise((resolve,reject)=>{
-    var decryptedItems=[];
-    for(let item of encryptedItems) {
-      var itemName = Buffer.from(item,'base64').toString('utf-8');
+    var parsedItems=[];
+    for(let item of unparsedItems) {
+      var itemName = item;
       const infoLocation = API_FUNCTIONS.replaceSpecialChars(`/home/${SSH_User}/.local/share/Trash/info/${itemName}.trashinfo`)
       const fileLocation = API_FUNCTIONS.replaceSpecialChars(`/home/${SSH_User}/.local/share/Trash/files/${itemName}`)
-      decryptedItems.push(infoLocation,fileLocation);
+      parsedItems.push(infoLocation,fileLocation);
     }
-    resolve(decryptedItems);
+    resolve(parsedItems);
   })
 }

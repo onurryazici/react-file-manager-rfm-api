@@ -5,13 +5,13 @@ exports.restoreItems = function (req,res) {
     /// "items[]" :  Encoded Item's restore path with base64
     var SSH_Connection = API.getSSH();
     var SSH_User       = API.getUsername();
-    var encryptedItems = req.body.encryptedItems;
+    var unparsedItems  = req.body.items;
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
-        DecryptItems(encryptedItems).then((decryptedItems)=>{
+        ParseItems(unparsedItems).then((parsedItems)=>{
             var promises=[];
             return new Promise(resolve => {
-              Array.from(decryptedItems).forEach((item,i) => {
+              Array.from(parsedItems).forEach((item,i) => {
                 var p = new Promise((resolve,reject) => {
                   const absolutePath         = item.absolutePath;
                   const restorePath          = item.restorePath;
@@ -27,7 +27,7 @@ exports.restoreItems = function (req,res) {
                   })
                 });
                 promises.push(p);
-                if(i === Array.from(decryptedItems).length - 1){
+                if(i === Array.from(parsedItems).length - 1){
                     resolve();
                 } 
               })
@@ -41,15 +41,15 @@ exports.restoreItems = function (req,res) {
           })
     }
 }
-function DecryptItems(encryptedItems){
+function ParseItems(unparsedItems){
   return new Promise((resolve)=>{
-    var decryptedItems=[];
-    for(let item of encryptedItems) {
-      decryptedItems.push({
-        absolutePath:Buffer.from(item.absolutePath,'base64').toString('utf-8'),
-        restorePath:Buffer.from(item.restorePath,'base64').toString('utf-8'),
+    var parsedItems=[];
+    for(let item of unparsedItems) {
+      parsedItems.push({
+        absolutePath:item.absolutePath,
+        restorePath:item.restorePath,
       });
     }
-    resolve(decryptedItems);
+    resolve(parsedItems);
   })
 }

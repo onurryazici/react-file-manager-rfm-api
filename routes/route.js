@@ -17,18 +17,18 @@ const { restoreItems } = require('./secured/restoreItems');
 const { getImage } = require('./secured/getImage');
 const upload = multer();
 
-router.get('/getDirectory',getDirectory ); // POSTA ÇEVİR
-router.post('/userAuthentication', userAuthentication );
-router.post('/uploadItem', upload.single('file'), uploadItem);
-router.get('/createDirectory', createDirectory);
-router.get('/removeItemPermanently', removeItemPermanently);
-router.get('/renameItem', renameItem);
-router.get('/shareItem', shareItem);
-router.get('/removePermission', removePermission);
-router.get('/moveItems',moveItems);
-router.get('/createCopy',createCopy);
-router.get('/moveToTrash', moveToTrash);
-router.get('/emptyTrash',emptyTrash);
-router.post('/restoreItems',restoreItems);
-router.get('/getImage',getImage);
+router.post('/secured/getDirectory',getDirectory ); // POSTA ÇEVİR
+router.post('/open-service/userAuthentication', userAuthentication );
+router.post('/secured/uploadItem', upload.single('file'), uploadItem);
+router.post('/secured/createDirectory', createDirectory);
+router.post('/secured/removeItemPermanently', removeItemPermanently);
+router.post('/secured/renameItem', renameItem);
+router.get('/secured/shareItem', shareItem);
+router.post('/secured/removePermission', removePermission);
+router.post('/secured/moveItems',moveItems);
+router.post('/secured/createCopy',createCopy);
+router.post('/secured/moveToTrash', moveToTrash);
+router.get('/secured/emptyTrash',emptyTrash);
+router.post('/secured/restoreItems',restoreItems);
+router.post('/secured/getImage',getImage);
 module.exports = router;

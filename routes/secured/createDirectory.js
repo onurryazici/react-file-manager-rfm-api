@@ -7,10 +7,8 @@ exports.createDirectory = async function (req,res) {
 
 
   var SSH_Connection      = API.getSSH();
-  var encryptedLocation   = req.query.location;
-  var encrpyedDirName     = req.query.dirname;
-  var location            = Buffer.from(encryptedLocation,'base64').toString('utf-8');
-  var dirname             = Buffer.from(encrpyedDirName,'base64').toString('utf-8');
+  var location            = req.body.location;
+  var dirname             = req.body.dirname;
 
   
   const newDirectoryPath = location + "/" + dirname;

@@ -7,8 +7,8 @@ exports.moveToTrash = function (req,res) {
 
     var SSH_Connection = API.getSSH();
     var SSH_User       = API.getUsername();
-    var encryptedItems = req.query.items;
-    var encryptedCurrentLocation = req.query.location;
+    var unparsedItems  = req.body.items;
+    var target = req.body.location;
     
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
@@ -16,8 +16,8 @@ exports.moveToTrash = function (req,res) {
         if (sftp_err)
             reject({statu:false,message:"UNKNOWN_ERROR"});
         else{
-          DecryptItems(encryptedItems,encryptedCurrentLocation).then((decryptedItems)=>{
-            var command = `trash-put ${decryptedItems.join(' ')}`;
+          ParseItems(unparsedItems,target).then((parsedItems)=>{
+            var command = `trash-put ${parsedItems.join(' ')}`;
             API.executeSshCommand(command)
             .then(()=>{
                 res.status(200).json({statu:true, message:"MOVE_TO_TRASH_SUCCESS"});
@@ -32,16 +32,13 @@ exports.moveToTrash = function (req,res) {
       });
     }
 }
-function DecryptItems(encryptedItems,encryptedCurrentLocation){
+function ParseItems(unparsedItems,target){
   return new Promise((resolve,reject)=>{
-    var decryptedCurrentLocation = Buffer.from(encryptedCurrentLocation,'base64').toString('utf-8');
-    var decryptedItems=[];
-    for(let item of encryptedItems) {
-      var itemName = Buffer.from(item, 'base64').toString('utf-8');
-      var itemLocation = decryptedCurrentLocation + "/" + itemName;
-      decryptedItems.push(itemLocation);
+    var parsedItems=[];
+    for(let item of unparsedItems) {
+      var itemLocation = target + "/" + item;
+      parsedItems.push(itemLocation);
     }
-    console.log("")
-    resolve(decryptedItems);
+    resolve(parsedItems);
   })
 }

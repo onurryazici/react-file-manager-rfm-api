@@ -6,15 +6,14 @@ exports.createCopy = async function (req,res) {
     /// "target"   : Encoded target path of items with base64
 
     var SSH_Connection = API.getSSH();
-    var encryptedItems = req.query.items;
-    var target = Buffer.from(req.query.target,'base64').toString('utf-8');
+    var unparsedItems  = req.body.items;
+    var target         = req.body.target;
 
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
-        DecryptItems(encryptedItems).then((items)=>{
+        ParseItems(unparsedItems).then((items)=>{
             const _target = API_FUNCTIONS.replaceSpecialChars(target);
             let command = `cp -R -n ${items.join(' ')} ${_target}`;
-            console.log(command);
             API.executeSshCommand(command)
                 .then(()=>{
                     res.status(200).json({
@@ -34,13 +33,12 @@ exports.createCopy = async function (req,res) {
     }
     
 }
-function DecryptItems(encryptedItems){
+function ParseItems(unparsedItems){
     return new Promise((resolve,reject)=>{
-        let decryptedItems = []
-        encryptedItems.forEach(item => {
-            let itemPath = Buffer.from(item,'base64').toString('utf-8');
-            decryptedItems.push(API_FUNCTIONS.replaceSpecialChars(itemPath));      
+        let parsedItems = []
+        unparsedItems.forEach(item => {
+            parsedItems.push(API_FUNCTIONS.replaceSpecialChars(item));      
         });
-        resolve(decryptedItems);
+        resolve(parsedItems);
     })
 }

@@ -7,19 +7,17 @@ exports.getDirectory = async function (req,res) {
 
     var SSH_Connection           = API.getSSH();
     var SSH_User                 = API.getUsername();
-    var encryptedLocation        = req.query.location;
-    var location                 = Buffer.from(encryptedLocation,'base64').toString('utf-8');
-    var formattedCurrentLocation = location.replace(/\s/g,'\\ ').replace(/'/g, "\\'");
-    var isItRecycleBin           = req.query.isItRecycleBin;
+    var location                 = req.body.location;
+    var isItRecycleBin           = req.body.isItRecycleBin;
     var recycleBinLocation       = `/home/${SSH_User}/.local/share/Trash/files`
+    
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
-    {   var target = (isItRecycleBin==="true") ? recycleBinLocation : formattedCurrentLocation
+    {   var target  = (isItRecycleBin===true) ? recycleBinLocation : location
         var command = `GetDirectoryData.run "${target}"`;
-        API.executeSshCommand(command)
-        .then((output)=>{
+        API.executeSshCommand(command).then((output)=>{
             const data = JSON.parse(output)
             if(Array.from(data.items).length > 0) {
-                if(isItRecycleBin==="true"){
+                if(isItRecycleBin===true){
                     return new Promise((resolve,reject)=>{
                         GetRecycleInfo(output,SSH_User).then((responseOutput)=>{
                             res.status(200).json(responseOutput);
@@ -34,6 +32,7 @@ exports.getDirectory = async function (req,res) {
                 res.status(200).json(JSON.parse(output));
             }
         }).catch((err)=>{
+            console.log(err)
             res.status(400).json({statu:false,items:[],message:err})
         })
     }

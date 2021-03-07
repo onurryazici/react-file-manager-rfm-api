@@ -7,23 +7,27 @@ exports.renameItem = function (req,res) {
     
   
     var SSH_Connection = API.getSSH();
-    var item = Buffer.from(req.query.itemPath,'base64').toString('utf-8');
-    var newName  = Buffer.from(req.query.newName,'base64').toString('utf-8');
+    var item           = req.body.itemPath;
+    var type           = req.body.type;
+    var extension      = req.body.extension;
+    var newName        = req.body.newName;
 
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
         SSH_Connection.connection.sftp((sftp_err,sftp) => {
-        if (sftp_err)
-            res.status(400).json({statu:false,message:"UNKNOWN_ERROR"});   
-        var itemPath = item.substring(0,item.lastIndexOf('/'));
-        sftp.rename(item,itemPath+"/"+newName,(error)=>{
-            if (error) 
-                res.status(304).json({statu:false,message:"UNKNOWN_ERROR",details:error.code});
-            else {
-                res.status(200).json({statu:true,message:"ITEM_RENAME_SUCCESS"});
-            }
+            if (sftp_err)
+                res.status(400).json({statu:false,message:"UNKNOWN_ERROR"});   
+            var itemPath = item.substring(0,item.lastIndexOf('/'));
+            var name     = (type==="directory") ? newName : newName + "." + extension;
+            var target   = itemPath+"/" + name ;
+            sftp.rename(item,target,(error)=>{
+                if (error) 
+                    res.status(304).json({statu:false,message:"UNKNOWN_ERROR",details:error.code});
+                else {
+                    res.status(200).json({statu:true,message:"ITEM_RENAME_SUCCESS",newItemName:name});
+                }
+            });
         });
-      });
     }
     else{
         res.json({

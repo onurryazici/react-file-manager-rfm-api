@@ -6,7 +6,7 @@ exports.getImage = async function (req,res) {
     // absolutePath : Encrypted image path with base64
 
     var SSH_Connection           = API.getSSH();
-    var absolutePath             = Buffer.from(req.query.absolutePath,'base64').toString('utf-8')
+    var absolutePath             = req.body.absolutePath;
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {   
         SSH_Connection.connection.sftp((sftp_err,sftp) => {

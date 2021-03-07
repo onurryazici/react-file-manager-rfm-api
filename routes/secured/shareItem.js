@@ -20,27 +20,32 @@ exports.shareItem = function (req,res) {
                 var command = `setfacl -Rm ${"u:" + user + ":" +permissions} ${itemPath}`;
                 API.executeSshCommand(command)
                 .then(()=>{
-                    res.status(200).json({
+                    return res.status(200).json({
                         statu:true,
                         message:"PROCESS_SUCCESS",
                     });
                 }).catch((err)=>{
-                    res.status(404).json({statu:false,message:err})
+                    return res.status(400).json({statu:false,message:err})
                 })
             }
             else{
-                res.status(200).json({
+                return res.status(400).json({
                     statu:false,
                     message:"NO_SUCH_USER",
                 });
             }
+        }).catch((err)=>{
+            return res.status(400).json({
+                statu:false,
+                message:err,
+            });
         })
         
         
     }
     else
     {
-        res.json({
+        return res.json({
             statu:false,
             message:"SESSION_NOT_STARTED"
         });

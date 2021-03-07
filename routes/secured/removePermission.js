@@ -7,15 +7,14 @@ exports.removePermission = function (req,res) {
     /// user        : username of person to add
 
     var SSH_Connection = API.getSSH();
-    var encryptedItem  = req.query.item;
-    var decryptedItem  = Buffer.from(encryptedItem,'base64').toString('utf-8') ;;
-    var user           = req.query.user;
+    var item           = req.body.item;
+    var user           = req.body.user;
 
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
         API.executeSshCommand(`getent passwd ${user}`).then((exist)=>{
             if (exist.length > 0){
-                var itemPath = decryptedItem.replace(/\s/g,'\\ ').replace(/'/g, "\\'");
+                var itemPath = item.replace(/\s/g,'\\ ').replace(/'/g, "\\'");
                 var command  = `setfacl -Rx ${"user:" + user} ${itemPath}`;
                 API.executeSshCommand(command)
                 .then(() => {

@@ -1,14 +1,15 @@
 var API = require('../../helper/SSH_SESSION');
-
+var API_FUNCTIONS = require('../../helper/functions');
 exports.moveItems = function (req,res) {
     var SSH_Connection = API.getSSH();
-    var encryptedItems = req.query.items;
-    var target = Buffer.from(req.query.target,'base64').toString('utf-8');
+    var unparsedItems  = req.body.items;
+    var target         = req.body.target;
 
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
-        DecryptItems(encryptedItems).then((items)=>{
-            target = target.replace(/\s/g,'\\ ').replace(/'/g, "\\'");
+        
+        ParseItems(unparsedItems).then((items)=>{
+            target = API_FUNCTIONS.replaceSpecialChars(target);
             let command = `mv -t ${target} ${items.join(' ')}`;
             console.log(command);
             API.executeSshCommand(command)
@@ -30,13 +31,12 @@ exports.moveItems = function (req,res) {
     }
 }
 
-function DecryptItems(encryptedItems){
+function ParseItems(unparsedItems){
     return new Promise((resolve,reject)=>{
-        let decryptedItems = []
-        encryptedItems.forEach(item => {
-            let itemPath = Buffer.from(item,'base64').toString('utf-8');
-            decryptedItems.push(itemPath.replace(/\s/g,'\\ ').replace(/'/g, "\\'"));      
+        let parsedItems = []
+        unparsedItems.forEach(item => {
+            parsedItems.push(API_FUNCTIONS.replaceSpecialChars(item));      
         });
-        resolve(decryptedItems);
+        resolve(parsedItems);
     })
 }
