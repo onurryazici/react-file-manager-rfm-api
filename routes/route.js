@@ -15,6 +15,7 @@ const { emptyTrash } = require('./secured/emptyTrash');
 const multer = require('multer');
 const { restoreItems } = require('./secured/restoreItems');
 const { getImage } = require('./secured/getImage');
+const { encryptItems } = require('./secured/encryptItems');
 const upload = multer();
 
 router.post('/secured/getDirectory',getDirectory ); // POSTA ÇEVİR
@@ -23,12 +24,13 @@ router.post('/secured/uploadItem', upload.single('file'), uploadItem);
 router.post('/secured/createDirectory', createDirectory);
 router.post('/secured/removeItemPermanently', removeItemPermanently);
 router.post('/secured/renameItem', renameItem);
-router.get('/secured/shareItem', shareItem);
+router.post('/secured/shareItem', shareItem);
 router.post('/secured/removePermission', removePermission);
 router.post('/secured/moveItems',moveItems);
 router.post('/secured/createCopy',createCopy);
 router.post('/secured/moveToTrash', moveToTrash);
 router.get('/secured/emptyTrash',emptyTrash);
 router.post('/secured/restoreItems',restoreItems);
-router.post('/secured/getImage',getImage);
+router.get('/secured/getImage',getImage);
+router.get('/secured/encryptItems',encryptItems);
 module.exports = router;

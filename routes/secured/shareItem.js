@@ -1,5 +1,5 @@
 var API = require('../../helper/SSH_SESSION');
-
+var API_FUNCTIONS = require('../../helper/functions');
 exports.shareItem = function (req,res) {
 
     /// INPUT
@@ -7,17 +7,17 @@ exports.shareItem = function (req,res) {
     /// user        : username of person to add
     /// permissions : Permissions of item 
     var SSH_Connection = API.getSSH();
-    var encryptedItem = req.query.item;
-    var decryptedItem = Buffer.from(encryptedItem,'base64').toString('utf-8') ;;
-    var user        = req.query.user;
-    var permissions = req.query.permissions;
+    var unparsedItems = req.body.item;
+    var user        = req.body.user;
+    var permissions = req.body.permissions;
 
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
         API.executeSshCommand(`getent passwd ${user}`).then((exist)=>{
             if (exist.length > 0){
-                var itemPath = decryptedItem.replace(/\s/g,'\\ ').replace(/'/g, "\\'");
+                var itemPath = API_FUNCTIONS.replaceSpecialChars(unparsedItems);
                 var command = `setfacl -Rm ${"u:" + user + ":" +permissions} ${itemPath}`;
+                console.log(command)
                 API.executeSshCommand(command)
                 .then(()=>{
                     return res.status(200).json({
