@@ -6,20 +6,30 @@ exports.getImage = async function (req,res) {
     // absolutePath : Encrypted image path with base64
 
     var SSH_Connection           = API.getSSH();
-    var absolutePath             = "/home/main/Desktop/IMG_20200115_001452.jpg";
+    var absolutePath             = req.query.absolutePath;
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {   
 
         SSH_Connection.connection.sftp((sftp_err,sftp) => {
             var base64Data = [];
             var dataLength = 0;
-            var file = sftp.readFile(absolutePath,(err,data)=>{
-                console.log(err)
-                console.log(data)
-                res.writeHead(200, {'Content-Type': 'application/octet-stream'});
-                res.end(data); // Send the file data to the browser.
-            })
-        })
+            if(sftp_err){
+                console.log("xx " + sftp_err)
+            }
+            else{
+                sftp.readFile(absolutePath,(err,data)=>{
+                    if(err){
+                        console.log("hata var " + err);
+                        console.log("path : " + absolutePath)
+                    }
+                    sftp.close(data);
+
+                    res.writeHead(200, {'Content-Type': 'image/jpeg'});
+                    res.end(data); // Send the file data to the browser.
+                })
+            }
+        }).resolve;
+
 
         // working
         /*SSH_Connection.connection.sftp((sftp_err,sftp) => {

@@ -1,5 +1,5 @@
 var API = require('../../helper/SSH_SESSION');
-
+var API_FUNCTIONS = require('../../helper/functions');
 exports.removePermission = function (req,res) {
 
     /// INPUT
@@ -14,14 +14,16 @@ exports.removePermission = function (req,res) {
     {
         API.executeSshCommand(`getent passwd ${user}`).then((exist)=>{
             if (exist.length > 0){
-                var itemPath = item.replace(/\s/g,'\\ ').replace(/'/g, "\\'");
-                var command  = `setfacl -Rx ${"user:" + user} ${itemPath}`;
-                API.executeSshCommand(command)
-                .then(() => {
-                    res.status(200).json({
-                        statu:true,
-                        message:"PROCESS_SUCCESS",
-                    });
+                var itemPath = API_FUNCTIONS.replaceSpecialChars(item);
+                var shortcutCommand = `find -L /home/${user}/.sharedWithMe/ -xtype l -samefile ${itemPath} 2>&1 | grep -v "Permission denied"`
+                var command  = `setfacl -Rx ${"user:" + user} ${itemPath} && ${shortcutCommand}`;
+                API.executeSshCommand(command).then((shortcuts) => {
+                    API.executeSshCommand(`rm -rf ${API_FUNCTIONS.replaceSpecialChars(shortcuts)}`).then(() => {
+                        res.status(200).json({
+                            statu:true,
+                            message:"PROCESS_SUCCESS",
+                        });
+                    })
                 }).catch((err)=>{
                     res.status(404).json({statu:false,message:err})
                 })
