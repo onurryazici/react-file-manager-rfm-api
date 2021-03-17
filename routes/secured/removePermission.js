@@ -16,7 +16,7 @@ exports.removePermission = function (req,res) {
             if (exist.length > 0){
                 var itemPath = API_FUNCTIONS.replaceSpecialChars(item);
                 var shortcutCommand = `find -L /home/${user}/.sharedWithMe/ -xtype l -samefile ${itemPath} 2>&1 | grep -v "Permission denied"`
-                var command  = `setfacl -Rx ${"user:" + user} ${itemPath} && ${shortcutCommand}`;
+                var command  = `setfacl -Rx ${"d:user:" + user} ${itemPath} && ${shortcutCommand}`;
                 API.executeSshCommand(command).then((shortcuts) => {
                     API.executeSshCommand(`rm -rf ${API_FUNCTIONS.replaceSpecialChars(shortcuts)}`).then(() => {
                         res.status(200).json({

@@ -10,7 +10,7 @@ exports.moveItems = function (req,res) {
         
         ParseItems(unparsedItems).then((items)=>{
             target = API_FUNCTIONS.replaceSpecialChars(target);
-            let command = `mv -t ${target} ${items.join(' ')}`;
+            let command = `MoveItem.run  ${items.join(' ')} ${target}  `;
             console.log(command);
             API.executeSshCommand(command)
                 .then(()=>{

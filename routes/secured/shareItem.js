@@ -19,10 +19,10 @@ exports.shareItem = function (req,res) {
                 if (exist.length > 0){
                     const itemPath  = API_FUNCTIONS.replaceSpecialChars(unparsedItems);
                     const itemName  = itemPath.substring(itemPath.lastIndexOf('/') + 1, itemPath.length);
-                    const command   = `setfacl -Rm ${"u:" + user + ":" + permissions} ${itemPath}`;
+                    const command   = `setfacl -Rm ${"d:" + user + ":" + permissions} ${itemPath} && setfacl -Rm o:--x ${itemPath}`;
+                    console.log(command)
                     const sharePath = `/home/${user}/.sharedWithMe/[$(date +%s%N | cut -b10-19)]-${itemName}`;
                     const shortcutCommand = `ln -s ${itemPath} ${sharePath}`
-                    console.log(command + " && " + shortcutCommand);
                     API.executeSshCommand(command + " && " + shortcutCommand).then(()=>{
                         return res.status(200).json({
                             statu:true,

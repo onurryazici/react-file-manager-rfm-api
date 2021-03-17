@@ -1,5 +1,5 @@
 var API = require('../../helper/SSH_SESSION');
-
+var API_FUNCTIONS = require('../../helper/functions');
 exports.moveToTrash = function (req,res) {
     /// INPUTS
     /// "items[]" :  Encoded Item's absolute path with base64
@@ -14,14 +14,16 @@ exports.moveToTrash = function (req,res) {
     {
       SSH_Connection.connection.sftp((sftp_err,sftp) => {
         if (sftp_err)
-            reject({statu:false,message:"UNKNOWN_ERROR"});
+          res.status(400).json({statu:false,message:"UNKNOWN_ERROR"});   
         else{
           ParseItems(unparsedItems,target).then((parsedItems)=>{
-            var command = `trash-put ${parsedItems.join(' ')}`;
+            var command = `trash-put ${API_FUNCTIONS.replaceSpecialChars(parsedItems.join(' '))}`;
+            console.log(command)
             API.executeSshCommand(command)
             .then(()=>{
                 res.status(200).json({statu:true, message:"MOVE_TO_TRASH_SUCCESS"});
             }).catch((err)=>{
+              console.log("hataaa " + err)
                 res.status(400).json({statu:false, items:[]})
             })
           })

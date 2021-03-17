@@ -32,7 +32,7 @@ exports.createDirectory = async function (req,res) {
                 absolutePath:location+"/"+dirname,
                 type:"directory",
                 sharedWith:[{
-                  username:API.getUsername(),
+                  username:API.getUsername(),//// güncellenecek
                   read:true,
                   write:true,
                   execute:true,
