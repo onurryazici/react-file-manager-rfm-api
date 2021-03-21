@@ -17,20 +17,27 @@ exports.shareItem = function (req,res) {
             API.executeSshCommand(`getent passwd ${user}`).then((exist)=>{
                 
                 if (exist.length > 0){
-                    const itemPath  = API_FUNCTIONS.replaceSpecialChars(unparsedItems);
+                    /*const itemPath  = API_FUNCTIONS.replaceSpecialChars(unparsedItems);
                     const itemName  = itemPath.substring(itemPath.lastIndexOf('/') + 1, itemPath.length);
-                    const command   = `setfacl -Rm ${"d:" + user + ":" + permissions} ${itemPath} && setfacl -Rm o:--x ${itemPath}`;
+
+                    const driveSharedPath   = `/home/${API.getUsername()}/.drive-shared`; 
+                    const itemSharedPath    = `${driveSharedPath}/${itemName}`
+                    const moveCommand       = `mv --backup=numbered ${itemPath} ${driveSharedPath}`;
+                    const permissionCommand = `setfacl -Rm ${"d:" + user + ":" + permissions} ${itemSharedPath}`;
+                    const shortcutPath      = `/home/${user}/.sharedWithMe/${itemName}`;
+                    const shortcutCommand   = `ln -s --backup=numbered ${itemSharedPath} ${shortcutPath}`
+
+                    const command = `${moveCommand} && ${permissionCommand} && ${shortcutCommand}`;
+                    
                     console.log(command)
-                    const sharePath = `/home/${user}/.sharedWithMe/[$(date +%s%N | cut -b10-19)]-${itemName}`;
-                    const shortcutCommand = `ln -s ${itemPath} ${sharePath}`
-                    API.executeSshCommand(command + " && " + shortcutCommand).then(()=>{
+                    API.executeSshCommand(command).then(()=>{
                         return res.status(200).json({
                             statu:true,
                             message:"PROCESS_SUCCESS",
                         });
                     }).catch((err)=>{
                         return res.status(400).json({statu:false,message:err})
-                    })
+                    })*/
                 }
                 else{
                     return res.status(400).json({

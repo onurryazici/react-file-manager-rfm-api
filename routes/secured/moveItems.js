@@ -10,8 +10,8 @@ exports.moveItems = function (req,res) {
         
         ParseItems(unparsedItems).then((items)=>{
             target = API_FUNCTIONS.replaceSpecialChars(target);
-            let command = `MoveItem.run  ${items.join(' ')} ${target}  `;
-            console.log(command);
+            const updatePermissionCommand = `setfacl -Rbm ${items.join(' ')} ` /// önemli izinleri sıfırlar otherlar : --x
+            let command = `MoveItem.run  ${target} ${items.join(' ')} && ${updatePermissionCommand}`;
             API.executeSshCommand(command)
                 .then(()=>{
                     res.status(200).json({

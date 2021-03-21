@@ -37,7 +37,6 @@ exports.userAuthentication = async function(req,res){
                 token            : token
             });
         }).catch((error)=>{
-            console.log("aaa")
             API.setSSH(null);
             return res.status(200).json({
                 statu            : false,

@@ -13,7 +13,11 @@ exports.createCopy = async function (req,res) {
     {
         ParseItems(unparsedItems).then((items)=>{
             const _target = API_FUNCTIONS.replaceSpecialChars(target);
-            let command = `cp -R -n ${items.join(' ')} ${_target}`;
+            const updatePermissionCommand = `setfacl -Rbm ${items.join(' ')} ` /// önemli izinleri sıfırlar otherlar : --x
+            console.log(_target);
+            console.log(items.join(' '));
+
+            const command = `CopyItem.run ${_target} ${items.join(' ')} && ${updatePermissionCommand}`;
             API.executeSshCommand(command)
                 .then(()=>{
                     res.status(200).json({
