@@ -13,8 +13,9 @@ exports.newShareItem = function (req,res) {
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
         SSH_Connection.connection.sftp((sftp_err,sftp) => {
-            const command = `NewShare.run "${itemPath}" ${userData.join(' ')}`
-            console.log(command);
+            const itemPathStr = API_FUNCTIONS.replaceSpecialChars(itemPath);
+            
+            const command = `NewShare.run ${itemPathStr} ${userData.join(' ')}`
             API.executeSshCommand(command).then((output)=>{
                 return res.status(200).json({
                     statu:true,
@@ -22,7 +23,6 @@ exports.newShareItem = function (req,res) {
                 });
             
             }).catch((err)=>{
-                console.log("hata 2 " + output.message);
                 return res.status(400).json({
                     statu:false,
                     message:err,

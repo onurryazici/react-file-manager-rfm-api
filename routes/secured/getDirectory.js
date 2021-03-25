@@ -1,23 +1,30 @@
 const Messages = require('../../helper/message');
 var API      = require('../../helper/SSH_SESSION');
 var API_FUNCTIONS = require('../../helper/functions');
+const RFM_WindowType = {
+    DRIVE:"DRIVE",
+    SHARED_WITH_ME:"SHARED_WITH_ME",
+    MY_SHARED:"MY_SHARED",
+    RECYCLE_BIN:"RECYCLE_BIN"
+}
 exports.getDirectory = async function (req,res) {
     // location       : Encrypted folder location with base64
     // isItRecycleBin : For viewing trash [true,false]
 
+    
     var SSH_Connection           = API.getSSH();
     var SSH_User                 = API.getUsername();
-    var location                 = req.body.location;
-    var isItRecycleBin           = req.body.isItRecycleBin;
-    var recycleBinLocation       = `/home/${SSH_User}/.local/share/Trash/files`
-    
+    var location                 = API_FUNCTIONS.replaceSpecialChars(req.body.location);
+    var rfmWindow                = req.body.rfmWindow
+
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
-    {   var target  = (isItRecycleBin===true) ? recycleBinLocation : location
-        var command = `GetDirectoryData.run "${target}"`;
+    {   var target  = location;
+
+        var command = `GetDirectoryData.run ${target}`;
         API.executeSshCommand(command).then((output)=>{
             const data = JSON.parse(output)
             if(Array.from(data.items).length > 0) {
-                if(isItRecycleBin===true){
+                if(rfmWindow === RFM_WindowType.RECYCLE_BIN){
                     return new Promise((resolve,reject)=>{
                         GetRecycleInfo(output,SSH_User).then((responseOutput)=>{
                             res.status(200).json(responseOutput);
@@ -43,6 +50,8 @@ exports.getDirectory = async function (req,res) {
         });
     }
 }
+
+
 function GetRecycleInfo(data,SSH_User){
     return new Promise((resolve,reject)=>{
         var originalData = JSON.parse(data);
