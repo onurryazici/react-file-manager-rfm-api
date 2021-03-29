@@ -21,6 +21,7 @@ exports.getDirectory = async function (req,res) {
     {   var target  = location;
 
         var command = `GetDirectoryData.run ${target}`;
+        console.log(command)
         API.executeSshCommand(command).then((output)=>{
             const data = JSON.parse(output)
             if(Array.from(data.items).length > 0) {
