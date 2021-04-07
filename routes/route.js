@@ -35,6 +35,6 @@ router.post('/secured/createCopy',createCopy);
 router.post('/secured/moveToTrash', moveToTrash);
 router.get('/secured/emptyTrash',emptyTrash);
 router.post('/secured/restoreItems',restoreItems);
-router.get('/secured/getImage',getImage);
+router.get('/getImage',getImage);
 router.get('/secured/encryptItems',encryptItems);
 module.exports = router;
