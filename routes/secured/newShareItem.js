@@ -16,6 +16,7 @@ exports.newShareItem = function (req,res) {
             const itemPathStr = API_FUNCTIONS.replaceSpecialChars(itemPath);
             
             const command = `NewShare.run ${itemPathStr} ${userData.join(' ')}`
+            console.log(command)
             API.executeSshCommand(command).then((output)=>{
                 return res.status(200).json({
                     statu:true,

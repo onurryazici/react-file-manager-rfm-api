@@ -12,31 +12,18 @@ exports.removePermission = function (req,res) {
 
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
-        API.executeSshCommand(`getent passwd ${user}`).then((exist)=>{
-            if (exist.length > 0){
-                var itemPath = API_FUNCTIONS.replaceSpecialChars(item);
-                var shortcutCommand = `find -L /home/${user}/.sharedWithMe/ -xtype l -samefile ${itemPath} 2>&1 | grep -v "Permission denied"`
-                var command  = `setfacl -Rx ${"d:user:" + user} ${itemPath} && ${shortcutCommand}`;
-                API.executeSshCommand(command).then((shortcuts) => {
-                    API.executeSshCommand(`rm -rf ${API_FUNCTIONS.replaceSpecialChars(shortcuts)}`).then(() => {
-                        res.status(200).json({
-                            statu:true,
-                            message:"PROCESS_SUCCESS",
-                        });
-                    })
-                }).catch((err)=>{
-                    res.status(404).json({statu:false,message:err})
-                })
-            }
-            else{
-                res.status(200).json({
-                    statu:false,
-                    message:"NO_SUCH_USER",
-                });
-            }
-        })
-        
-        
+        var itemPath = API_FUNCTIONS.replaceSpecialChars(item);
+        var userPermissionCommand  = `setfacl -Rx ${"d:user:" + user} ${itemPath}`;
+        var defaultUserPermissionCommand = `setfacl -Rx ${"user:" + user} ${itemPath}`;
+        var removePermissionCommand = `${userPermissionCommand} && ${defaultUserPermissionCommand}`;
+        API.executeSshCommand(removePermissionCommand).then((shortcuts) => {
+            res.status(200).json({
+                statu:true,
+                message:"PROCESS_SUCCESS",
+            });
+        }).catch((err)=>{
+            res.status(404).json({statu:false,message:err})
+        })        
     }
     else
     {

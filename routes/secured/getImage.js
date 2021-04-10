@@ -1,7 +1,6 @@
 const Messages = require('../../helper/message');
 var API      = require('../../helper/SSH_SESSION');
 var API_FUNCTIONS = require('../../helper/functions');
-var ssh = require('ssh2');
 exports.getImage = async function (req,res) {
     // INPUT
     // absolutePath : Encrypted image path with base64
@@ -10,23 +9,22 @@ exports.getImage = async function (req,res) {
     var absolutePath             = req.query.absolutePath;
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {   
-        this.SSH_Connection = new ssh.Client();
+
         SSH_Connection.connection.sftp((sftp_err,sftp) => {
-            var base64Data = [];
-            var dataLength = 0;
             if(sftp_err){
                 console.log("xx " + sftp_err)
             }
             else{
                 sftp.readFile(absolutePath,(err,data)=>{
                     if(err){
-                        console.log("hata var " + err);
-                        console.log("path : " + absolutePath)
+                        res.writeHead(200, {'Content-Type': 'image/jpeg'});
+                        res.end(null); // Send the file data to the browser.
                     }
-                    sftp.close(data);
-
-                    res.writeHead(200, {'Content-Type': 'image/jpeg'});
-                    res.end(data); // Send the file data to the browser.
+                    else{
+                        sftp.close(data);
+                        res.writeHead(200, {'Content-Type': 'image/jpeg'});
+                        res.end(data); // Send the file data to the browser.
+                    }
                 })
             }
         }).resolve;

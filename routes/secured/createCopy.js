@@ -13,7 +13,7 @@ exports.createCopy = async function (req,res) {
     {
         ParseItems(unparsedItems).then((items)=>{
             const _target = API_FUNCTIONS.replaceSpecialChars(target);
-            const updatePermissionCommand = `setfacl -Rbm ${items.join(' ')} ` /// önemli izinleri sıfırlar otherlar : --x
+            const updatePermissionCommand = `setfacl -Rbk ${items.join(' ')} ` /// önemli izinleri sıfırlar otherlar : --x
             console.log(_target);
             console.log(items.join(' '));
 

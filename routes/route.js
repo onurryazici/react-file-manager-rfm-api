@@ -5,7 +5,7 @@ const { userAuthentication } = require('./open-service/user-authentication');
 const { createDirectory } = require('./secured/createDirectory');
 const { removeItemPermanently } = require('./secured/removeItemPermanently');
 const { renameItem } = require('./secured/renameItem');
-const { shareItem } = require('./secured/shareItem');
+const { updatePermission } = require('./secured/updatePermission');
 const { newShareItem } = require('./secured/newShareItem');
 const { isUserExist } = require('./secured/isUserExist');
 const { removePermission } = require('./secured/removePermission');
@@ -18,6 +18,7 @@ const multer = require('multer');
 const { restoreItems } = require('./secured/restoreItems');
 const { getImage } = require('./secured/getImage');
 const { encryptItems } = require('./secured/encryptItems');
+const { existShareItem } = require('./secured/existShare');
 const upload = multer();
 
 router.post('/secured/getDirectory',getDirectory ); // POSTA ÇEVİR
@@ -26,8 +27,9 @@ router.post('/secured/uploadItem', upload.single('file'), uploadItem);
 router.post('/secured/createDirectory', createDirectory);
 router.post('/secured/removeItemPermanently', removeItemPermanently);
 router.post('/secured/renameItem', renameItem);
-router.post('/secured/shareItem', shareItem);
+router.post('/secured/updatePermission', updatePermission);
 router.post('/secured/newShareItem', newShareItem);
+router.post('/secured/existShareItem', existShareItem);
 router.post('/secured/isUserExist', isUserExist);
 router.post('/secured/removePermission', removePermission);
 router.post('/secured/moveItems',moveItems);
