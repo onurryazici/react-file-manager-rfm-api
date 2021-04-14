@@ -1,18 +1,16 @@
 var API = require('../../helper/SSH_SESSION');
 var API_FUNCTIONS = require('../../helper/functions');
-exports.moveItems = function (req,res) {
+exports.moveToDrive    = function (req,res) {
     var SSH_Connection = API.getSSH();
     var unparsedItems  = req.body.items;
-    var target         = req.body.target;
-    //const updatePermissionCommand = `setfacl -Rbk ${items.join(' ')} ` /// önemli izinleri sıfırlar otherlar : --x
+    var SSH_User       = API.getUsername();
 
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
         
         ParseItems(unparsedItems).then((items)=>{
-            target = API_FUNCTIONS.replaceSpecialChars(target);
+            var target  = `/home/${SSH_User}/drive`;
             let command = `MoveItem.run  ${target} ${items.join(' ')}`;
-            console.log(items.join(' '));
             API.executeSshCommand(command)
                 .then(()=>{
                     res.status(200).json({
