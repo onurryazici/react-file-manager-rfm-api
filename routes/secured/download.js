@@ -1,60 +1,106 @@
-var API = require('../../helper/SSH_SESSION');
-const mime = require('mime');
-const fs = require('fs');
+const API           = require('../../helper/SSH_SESSION');
+const API_FUNCTIONS = require('../../helper/functions');
+const mime          = require('mime');
 exports.download = async function (req,res) {
   /// INPUTS
   /// "location" : Encoded Current directory with base64
   /// "dirname"  : Encoded new folder name with base64
 
   var SSH_Connection      = API.getSSH();
-  var item                = req.query.item;
+  var SSH_User            = API.getUsername();
+  var items               = req.query.items;
 
-  
-    if(SSH_Connection !== null && SSH_Connection.isConnected()) 
-    {
+  if(SSH_Connection !== null && SSH_Connection.isConnected()) 
+  {
       SSH_Connection.connection.sftp((sftp_err,sftp) => {
-            if (sftp_err){
-              res.status(400).json({statu:false,message:"UNKNOWN_ERROR"});}
-              
-              console.log(Array.from(item.length))
-              /*************if(fs.lstatSync("/home/user1/drive/qwe/rty").isDirectory())
-              {
-                console.log("yes");
-              }
-              else{
-                console.log("no");
-              }*************/
-            // console.log('dir ', __dirname);
-            /*var file = '/home/main/drive/tester/videolar/sssss.mkv';
-            var filename = 'sssss.mkv';
-            var mimetype = mime.getType(file);
-            console.log(mimetype+"wwwwwwwwwwwww");
-            res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+        if (sftp_err){
+          res.status(400).json({statu:false,message:"UNKNOWN_ERROR"});
+        }
+        
+        if(Array.from(items).length > 1)
+        {
+          // REPLACE ALL OF ARRAY ITEMS WITH SPECIAL CHARACTERS 
+
+          /*const zipName = itemName + "-" + new Date().getTime() + ".zip";
+          const command = `cd ${API_FUNCTIONS.replaceSpecialChars(itemParentPath)}` 
+              +` && zip -r -0 /home/${SSH_User}/drive-downloads/${API_FUNCTIONS.replaceSpecialChars(zipName)} ${API_FUNCTIONS.replaceSpecialChars(itemName)}`
+          API.executeSshCommand(command).then((output)=>{
+            const downloadOutput = `/home/${SSH_User}/drive-downloads/${zipName}`
+            var mimetype = mime.getType(downloadOutput);
+            res.setHeader('Content-disposition', 'attachment; filename=' + zipName);
             res.setHeader('Content-type', mimetype);
-            var filestream = sftp.createReadStream(file);
-            filestream.pipe(res);*/
-
-
-
-            /*var base64Data = [];
-            var dataLength=0;
-            console.log(item+"xxxxxxxxxxxxxxxxx")
-            var file = sftp.createReadStream(item)
-            file.on('data',(chunk)=>{
-                base64Data.push(chunk);
-                dataLength += chunk.length;
+            var filestream = sftp.createReadStream(downloadOutput);
+            filestream.pipe(res).on('finish',()=>{
+              console.log("ok directory is done")
             })
-            file.on('end',()=>{
-                var dataBuffer = Buffer.concat(base64Data,dataLength);
-                const img = Buffer.from(dataBuffer).toString('base64')
-                res.download(img)
-            })*/
+          });*/
+        }
+        else
+        {
+          // DIRECT DOWNLOAD
+          var itemPath = items[0];
+          var itemParentPath = itemPath.substring(0,itemPath.lastIndexOf('/'));
+          var itemName = itemPath.substring(itemPath.lastIndexOf('/')+1,itemPath.length);
+          sftp.lstat(itemPath,(err,stat)=>{
+            if(stat.isDirectory()){
+              // COMPRESS ZIP AND DOWNLOAD
+              const zipName = itemName + "-" + new Date().getTime() + ".zip";
+              const command = `cd ${API_FUNCTIONS.replaceSpecialChars(itemParentPath)}` 
+                  +` && zip -r -0 /home/${SSH_User}/drive-downloads/${API_FUNCTIONS.replaceSpecialChars(zipName)} ${API_FUNCTIONS.replaceSpecialChars(itemName)}`
+              API.executeSshCommand(command).then((output)=>{
+                const downloadOutput = `/home/${SSH_User}/drive-downloads/${zipName}`
+                var mimetype = mime.getType(downloadOutput);
+                res.setHeader('Content-disposition', 'attachment; filename=' + zipName);
+                res.setHeader('Content-type', mimetype);
+                var filestream = sftp.createReadStream(downloadOutput);
+                filestream.pipe(res).on('finish',()=>{
+                  console.log("ok directory is done")
+                })
+              });
+            }
+            else{
+              // DIRECTLY DOWNLOAD FILE ++
+              var mimetype = mime.getType(itemPath);
+              res.setHeader('Content-disposition', 'attachment; filename=' + itemName);
+              res.setHeader('Content-type', mimetype);
+              var filestream = sftp.createReadStream(itemPath);
+              filestream.pipe(res).on('finish',()=>{
+                console.log("okay direct download is done")
+              })
+            }
+          })
+        }
+    });
+  }
+  else{
+      res.json({
+          statu:false,
+          message:"SESSION_NOT_STARTED"
       });
-    }
-    else{
-        res.json({
-            statu:false,
-            message:"SESSION_NOT_STARTED"
-        });
-    }
+  }
 }
+// console.log('dir ', __dirname);
+/*var file = '/home/main/drive/tester/videolar/sssss.mkv';
+var filename = 'sssss.mkv';
+var mimetype = mime.getType(file);
+console.log(mimetype+"wwwwwwwwwwwww");
+res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+res.setHeader('Content-type', mimetype);
+var filestream = sftp.createReadStream(file);
+filestream.pipe(res);*/
+
+
+
+/*var base64Data = [];
+var dataLength=0;
+console.log(item+"xxxxxxxxxxxxxxxxx")
+var file = sftp.createReadStream(item)
+file.on('data',(chunk)=>{
+    base64Data.push(chunk);
+    dataLength += chunk.length;
+})
+file.on('end',()=>{
+    var dataBuffer = Buffer.concat(base64Data,dataLength);
+    const img = Buffer.from(dataBuffer).toString('base64')
+    res.download(img)
+})*/
