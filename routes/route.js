@@ -42,7 +42,7 @@ router.post('/secured/moveToTrash', moveToTrash);
 router.post('/secured/moveToDrive', moveToDrive);
 router.get('/secured/emptyTrash',emptyTrash);
 router.post('/secured/restoreItems',restoreItems);
-router.get('/open-service/download', download);
+router.post('/secured/download', download);
 router.get('/getImage',getImage);
 router.get('/secured/encryptItems',encryptItems);
 module.exports = router;

@@ -21,14 +21,14 @@ exports.userAuthentication = async function(req,res){
             port              : 22,
             username          : req.body.username,
             password          : req.body.password,
-            keepaliveInterval : 10 * 1000, // 10 minutes for idle as milliseconds. details >> npmjs 
+            keepaliveInterval : 30 * 1000, // 30 minutes for idle as milliseconds
             keepaliveCountMax : 1,
         }).then(()=>{
             API.setUsername(req.body.username);
             API.setSSH(SSH_Connection);
             const payload = req.body.username;
             const token = jwt.sign({payload},req.app.get('api_secret_key'),{
-                expiresIn: '1h' //1 saat
+                expiresIn: '30m' //30 min
             });
             return res.status(200).json({
                 statu            : true,

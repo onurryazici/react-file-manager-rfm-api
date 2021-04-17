@@ -8,7 +8,7 @@ exports.download = async function (req,res) {
 
   var SSH_Connection      = API.getSSH();
   var SSH_User            = API.getUsername();
-  var items               = req.query.items;
+  var items               = req.body.items;
 
   if(SSH_Connection !== null && SSH_Connection.isConnected()) 
   {
@@ -19,21 +19,29 @@ exports.download = async function (req,res) {
         
         if(Array.from(items).length > 1)
         {
-          // REPLACE ALL OF ARRAY ITEMS WITH SPECIAL CHARACTERS 
+          ParseItems(items).then((parsedItems)=>{
+              // MULTI DOWNLOAD 
+              // COMPRESS ZIP AND DOWNLOAD
+              var itemPath       = items[0];
+              var itemParentPath = itemPath.substring(0,itemPath.lastIndexOf('/'));
+              const zipName = "drive-" + new Date().getTime() + ".zip";
+              const command = `cd ${API_FUNCTIONS.replaceSpecialChars(itemParentPath)}` 
+                  +` && zip -r -0 /home/${SSH_User}/drive-downloads/${zipName} ${parsedItems.join(' ')}`
 
-          /*const zipName = itemName + "-" + new Date().getTime() + ".zip";
-          const command = `cd ${API_FUNCTIONS.replaceSpecialChars(itemParentPath)}` 
-              +` && zip -r -0 /home/${SSH_User}/drive-downloads/${API_FUNCTIONS.replaceSpecialChars(zipName)} ${API_FUNCTIONS.replaceSpecialChars(itemName)}`
-          API.executeSshCommand(command).then((output)=>{
-            const downloadOutput = `/home/${SSH_User}/drive-downloads/${zipName}`
-            var mimetype = mime.getType(downloadOutput);
-            res.setHeader('Content-disposition', 'attachment; filename=' + zipName);
-            res.setHeader('Content-type', mimetype);
-            var filestream = sftp.createReadStream(downloadOutput);
-            filestream.pipe(res).on('finish',()=>{
-              console.log("ok directory is done")
-            })
-          });*/
+              API.executeSshCommand(command).then((output)=>{
+                const downloadOutput = `/home/${SSH_User}/drive-downloads/${zipName}`
+                var mimetype = mime.getType(downloadOutput);
+                res.setHeader('Content-disposition', 'attachment; filename=' + zipName);
+                res.setHeader('Content-type', mimetype);
+                var filestream = sftp.createReadStream(downloadOutput);
+                filestream.pipe(res).on('finish',()=>{
+                  console.log('bitti')
+                }).on('error',()=>{
+                  console.log('ERRORX')
+                })
+              })
+          })
+          
         }
         else
         {
@@ -59,13 +67,19 @@ exports.download = async function (req,res) {
               });
             }
             else{
-              // DIRECTLY DOWNLOAD FILE ++
+              // DIRECTLY DOWNLOAD FILE
               var mimetype = mime.getType(itemPath);
               res.setHeader('Content-disposition', 'attachment; filename=' + itemName);
               res.setHeader('Content-type', mimetype);
               var filestream = sftp.createReadStream(itemPath);
-              filestream.pipe(res).on('finish',()=>{
-                console.log("okay direct download is done")
+              var had_error = false;
+              filestream.pipe(res).on('error',(err)=>{
+                had_error = true;
+              }).on('close',()=>{
+                if (!had_error)
+                  console.log("hata yok ")
+                else 
+                  console.log("hata var")
               })
             }
           })
@@ -78,6 +92,19 @@ exports.download = async function (req,res) {
           message:"SESSION_NOT_STARTED"
       });
   }
+}
+
+
+function ParseItems(unparsedItems){
+  return new Promise((resolve,reject)=>{
+      let parsedItems = []
+      unparsedItems.forEach(item => {
+          var itemPath = API_FUNCTIONS.replaceSpecialChars(item);
+          var itemName = itemPath.substring(itemPath.lastIndexOf('/')+1, itemPath.length)
+          parsedItems.push(itemName);      
+      });
+      resolve(parsedItems);
+  })
 }
 // console.log('dir ', __dirname);
 /*var file = '/home/main/drive/tester/videolar/sssss.mkv';
