@@ -8,8 +8,7 @@ exports.download = async function (req,res) {
 
   var SSH_Connection      = API.getSSH();
   var SSH_User            = API.getUsername();
-  var items               = req.body.items;
-
+  var items               = req.query.items;
   if(SSH_Connection !== null && SSH_Connection.isConnected()) 
   {
       SSH_Connection.connection.sftp((sftp_err,sftp) => {
@@ -60,17 +59,21 @@ exports.download = async function (req,res) {
                 var mimetype = mime.getType(downloadOutput);
                 res.setHeader('Content-disposition', 'attachment; filename=' + zipName);
                 res.setHeader('Content-type', mimetype);
-                var filestream = sftp.createReadStream(downloadOutput);
-                filestream.pipe(res).on('finish',()=>{
-                  console.log("ok directory is done")
+                filestream.pipe(res,{end:true}).on('finish',()=>{
+                  console.log("directory ok")
                 })
+                
               });
             }
             else{
               // DIRECTLY DOWNLOAD FILE
               var mimetype = mime.getType(itemPath);
-              res.setHeader('Content-disposition', 'attachment; filename=' + itemName);
-              res.setHeader('Content-type', mimetype);
+              res.writeHead(200,{
+                'Content-disposition':('attachment; filename=' + itemName),
+                'Content-type': mimetype
+              })
+              //res.setHeader('Content-disposition', 'attachment; filename=' + itemName);
+              //res.setHeader('Content-type', mimetype);
               var filestream = sftp.createReadStream(itemPath);
               var had_error = false;
               filestream.pipe(res).on('error',(err)=>{
