@@ -59,9 +59,12 @@ exports.download = async function (req,res) {
                 var mimetype = mime.getType(downloadOutput);
                 res.setHeader('Content-disposition', 'attachment; filename=' + zipName);
                 res.setHeader('Content-type', mimetype);
-                filestream.pipe(res,{end:true}).on('finish',()=>{
+                var filestream = sftp.createReadStream(downloadOutput);
+                filestream.pipe(res).on('finish',()=>{
                   console.log("directory ok")
                 })
+
+                filestream.on('data')
                 
               });
             }
