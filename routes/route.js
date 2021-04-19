@@ -1,3 +1,4 @@
+const cors = require('cors')
 var express = require('express');
 var router = express.Router();
 const { getDirectory } = require('./secured/getDirectory');
@@ -23,7 +24,6 @@ const { existShareItem } = require('./secured/existShare');
 const { download } = require('./secured/download');
 const { moveToDrive } = require('./secured/moveToDrive');
 const upload = multer();
-
 router.post('/secured/getDirectory',getDirectory );
 router.post('/open-service/userAuthentication', userAuthentication );
 router.post('/secured/uploadItem', upload.single('file'), uploadItem);
@@ -42,7 +42,7 @@ router.post('/secured/moveToTrash', moveToTrash);
 router.post('/secured/moveToDrive', moveToDrive);
 router.get('/secured/emptyTrash',emptyTrash);
 router.post('/secured/restoreItems',restoreItems);
-router.get('/secured/download', download);
+router.get('/secured/download', cors({exposedHeaders:['Content-Disposition']}), download);
 router.get('/getImage',getImage);
 router.get('/secured/encryptItems',encryptItems);
 module.exports = router;

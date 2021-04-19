@@ -1,7 +1,7 @@
 const API           = require('../../helper/SSH_SESSION');
 const API_FUNCTIONS = require('../../helper/functions');
 const mime          = require('mime');
-exports.download = async function (req,res) {
+exports.download = function (req,res) {
   /// INPUTS
   /// "location" : Encoded Current directory with base64
   /// "dirname"  : Encoded new folder name with base64
@@ -27,20 +27,20 @@ exports.download = async function (req,res) {
               const command = `cd ${API_FUNCTIONS.replaceSpecialChars(itemParentPath)}` 
                   +` && zip -r -0 /home/${SSH_User}/drive-downloads/${zipName} ${parsedItems.join(' ')}`
 
-              API.executeSshCommand(command).then((output)=>{
+              API.executeSshCommand(command).then(()=>{
                 const downloadOutput = `/home/${SSH_User}/drive-downloads/${zipName}`
-                var mimetype = mime.getType(downloadOutput);
-                res.setHeader('Content-disposition', 'attachment; filename=' + zipName);
-                res.setHeader('Content-type', mimetype);
-                var filestream = sftp.createReadStream(downloadOutput);
-                filestream.pipe(res).on('finish',()=>{
-                  console.log('bitti')
-                }).on('error',()=>{
-                  console.log('ERRORX')
+                sftp.stat(downloadOutput,(err,downloadStat)=>{
+                  var mimetype = mime.getType(downloadOutput);
+                  res.writeHead(200,{
+                    'Content-Disposition': `attachment; filename='${zipName}'`,
+                    'Content-Type': mimetype,
+                    'Content-Length': downloadStat.size,
+                  })
+                  const filestream = sftp.createReadStream(downloadOutput);
+                  filestream.pipe(res)
                 })
               })
           })
-          
         }
         else
         {
@@ -54,38 +54,39 @@ exports.download = async function (req,res) {
               const zipName = itemName + "-" + new Date().getTime() + ".zip";
               const command = `cd ${API_FUNCTIONS.replaceSpecialChars(itemParentPath)}` 
                   +` && zip -r -0 /home/${SSH_User}/drive-downloads/${API_FUNCTIONS.replaceSpecialChars(zipName)} ${API_FUNCTIONS.replaceSpecialChars(itemName)}`
-              API.executeSshCommand(command).then((output)=>{
+              API.executeSshCommand(command).then(()=>{
                 const downloadOutput = `/home/${SSH_User}/drive-downloads/${zipName}`
-                var mimetype = mime.getType(downloadOutput);
-                res.setHeader('Content-disposition', 'attachment; filename=' + zipName);
-                res.setHeader('Content-type', mimetype);
-                var filestream = sftp.createReadStream(downloadOutput);
-                filestream.pipe(res).on('finish',()=>{
-                  console.log("directory ok")
+                sftp.stat(downloadOutput,(err,downloadStat)=>{
+                  var mimetype = mime.getType(downloadOutput);
+                  res.writeHead(200,{
+                    'Content-Disposition': `attachment; filename='${zipName}'`,
+                    'Content-Type': mimetype,
+                    'Content-Length': downloadStat.size,
+                  })
+                  const filestream = sftp.createReadStream(downloadOutput);
+                  filestream.pipe(res)
                 })
-
-                filestream.on('data')
-                
               });
             }
             else{
               // DIRECTLY DOWNLOAD FILE
-              var mimetype = mime.getType(itemPath);
-              res.writeHead(200,{
-                'Content-disposition':('attachment; filename=' + itemName),
-                'Content-type': mimetype
-              })
-              //res.setHeader('Content-disposition', 'attachment; filename=' + itemName);
-              //res.setHeader('Content-type', mimetype);
-              var filestream = sftp.createReadStream(itemPath);
-              var had_error = false;
-              filestream.pipe(res).on('error',(err)=>{
-                had_error = true;
-              }).on('close',()=>{
-                if (!had_error)
-                  console.log("hata yok ")
-                else 
-                  console.log("hata var")
+              sftp.stat(itemPath,(err,itemStat)=>{
+                var mimetype = mime.getType(itemPath);
+                res.writeHead(200,{
+                  'Content-Disposition': `attachment; filename='${zipName}'`,
+                  'Content-Type': mimetype,
+                  'Content-Length': itemStat.size,
+                })
+                var filestream = sftp.createReadStream(itemPath);
+                var had_error = false;
+                filestream.pipe(res).on('error',(err)=>{
+                  had_error = true;
+                }).on('close',()=>{
+                  if (!had_error)
+                    console.log("hata yok ")
+                  else 
+                    console.log("hata var")
+                })
               })
             }
           })

@@ -19,6 +19,7 @@ module.exports = (req,res,next) => {
         });
     }
     else{
+
         res.json({
             statu:false,
             message: Messages.TOKEN_NOT_PROVIDED
