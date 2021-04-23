@@ -9,26 +9,24 @@ exports.isUserExist = function (req,res) {
 
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
-        SSH_Connection.connection.sftp((sftp_err,sftp) => {
-            API.executeSshCommand(`getent passwd ${user}`).then((exist)=>{
-                if (exist.length > 0){
-                    return res.status(200).json({
-                        statu:true,
-                        message:"USER_EXIST",
-                    });
-                }
-                else{
-                    return res.status(400).json({
-                        statu:false,
-                        message:"NO_SUCH_USER",
-                    });
-                }
-            }).catch((err)=>{
+        API.executeSshCommand(`getent passwd ${user}`).then((exist)=>{
+            if (exist.length > 0){
+                return res.status(200).json({
+                    statu:true,
+                    message:"USER_EXIST",
+                });
+            }
+            else{
                 return res.status(400).json({
                     statu:false,
-                    message:err,
+                    message:"NO_SUCH_USER",
                 });
-            })
+            }
+        }).catch((err)=>{
+            return res.status(400).json({
+                statu:false,
+                message:err,
+            });
         })
     }
     else

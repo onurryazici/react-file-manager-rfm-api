@@ -21,6 +21,7 @@ exports.renameItem = function (req,res) {
             var name     = (type==="directory") ? newName : newName + "." + extension;
             var target   = itemPath+"/" + name ;
             sftp.rename(item,target,(error)=>{
+                sftp.end();
                 if (error) 
                     res.status(304).json({statu:false,message:"UNKNOWN_ERROR",details:error.code});
                 else {

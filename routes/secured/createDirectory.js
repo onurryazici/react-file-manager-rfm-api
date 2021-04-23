@@ -35,6 +35,7 @@ exports.createDirectory = async function (req,res) {
                 write:true,
                 execute:true
               }
+              sftp.end();
               res.status(200).json({statu:true,item:item,message:"DIRECTORY_CREATE_SUCCESS"});
             }
           });

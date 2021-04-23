@@ -12,26 +12,20 @@ exports.moveToTrash = function (req,res) {
     
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
-      SSH_Connection.connection.sftp((sftp_err,sftp) => {
-        if (sftp_err)
-          res.status(400).json({statu:false,message:"UNKNOWN_ERROR"});   
-        else{
-          ParseItems(unparsedItems,target).then((parsedItems)=>{
-            var command = `trash-put ${API_FUNCTIONS.replaceSpecialChars(parsedItems.join(' '))}`;
-            console.log(command)
-            API.executeSshCommand(command)
-            .then(()=>{
-                res.status(200).json({statu:true, message:"MOVE_TO_TRASH_SUCCESS"});
-            }).catch((err)=>{
-              console.log("hataaa " + err)
-                res.status(400).json({statu:false, items:[]})
-            })
-          })
-          .catch((err)=>{
-            console.log(err)
-          })
-        }
-      });
+      ParseItems(unparsedItems,target).then((parsedItems)=>{
+        var command = `trash-put ${API_FUNCTIONS.replaceSpecialChars(parsedItems.join(' '))}`;
+        console.log(command)
+        API.executeSshCommand(command)
+        .then(()=>{
+            res.status(200).json({statu:true, message:"MOVE_TO_TRASH_SUCCESS"});
+        }).catch((err)=>{
+          console.log("hataaa " + err)
+            res.status(400).json({statu:false, items:[]})
+        })
+      })
+      .catch((err)=>{
+        console.log(err)
+      })
     }
 }
 function ParseItems(unparsedItems,target){

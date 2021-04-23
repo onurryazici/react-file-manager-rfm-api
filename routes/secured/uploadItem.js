@@ -1,9 +1,8 @@
 const multer = require('multer');
 const Messages = require('../../helper/message');
-const API           = require('../../helper/SSH_SESSION');
-const API_FUNCTIONS = require('../../helper/functions');
-const Readable = require('stream').Readable;
-
+var API           = require('../../helper/SSH_SESSION');
+var API_FUNCTIONS = require('../../helper/functions');
+const util = require('util');
 var fileNames=[];
 var storage = multer.diskStorage({
     destination:function (req,file,cb){
@@ -19,24 +18,12 @@ var storage = multer.diskStorage({
 var upload = multer({storage:storage}).array('file');
 
 
-function bufferToStream(buffer){
-    var stream = new Readable();
-    stream.push(buffer);
-    stream.push(null);
-    return stream;
-}
-
 exports.uploadItem = function (req,res) {
     var SSH_Connection = API.getSSH();
     var targetLocation = API_FUNCTIONS.replaceSpecialChars(req.query.targetLocation);
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
         SSH_Connection.connection.sftp((sftp_err,sftp) => {
-            //var str = bufferToStream(req.file);
-            //console.log("xxxx" +req.file.buffer)
-            //var readStream  = sftp.createReadStream(str);
-            //var writeStream = sftp.createWriteStream('/tester.exe')
-            //str.pipe(res)
             const filename = req.file.originalname;
             const target = `${targetLocation}/${filename}`;
             sftp.exists(target,(exist)=>{
@@ -45,18 +32,24 @@ exports.uploadItem = function (req,res) {
                     suitableName=`(uploaded-${new Date().getTime()}) ${filename}`;
                 else
                     suitableName=filename;
-                sftp.writeFile(`${targetLocation}/${suitableName}`,req.file.buffer,"binary",(err)=>{
-                    return res.status(200).json({statu:true,itemName:suitableName})
+                const finalTarget = `${targetLocation}/${suitableName}`
+                return new Promise((resolve,reject)=>{
+                    sftp.writeFile(`${finalTarget}`,req.file.buffer,"binary",(err)=>{
+                        sftp.end()
+                        if(err)
+                            reject();
+                        else
+                            resolve();
+                    })
+                }).then(()=>{
+                    const command = `GetData.run ${API_FUNCTIONS.replaceSpecialChars(finalTarget)}`
+                    API.executeSshCommand(command).then((output)=>{
+                        res.status(200).json(JSON.parse(output));
+                    })
+                }).catch((err)=>{
+                    res.status(400).json({statu:false,items:[],message:err})
                 })
             })
-            /*if(sftp.exists(target,(err)=>{}))
-            {
-                suitableName=`(uploaded-${new Date().getTime()}) ${filename}`
-            }
-            else{
-                suitableName=filename;
-            }
-            console.log(sftp.exists(target,(err)=>{}))*/
         });
     }
     else

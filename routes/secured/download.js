@@ -37,6 +37,9 @@ exports.download = function (req,res) {
                     'Content-Length': downloadStat.size,
                   })
                   const filestream = sftp.createReadStream(downloadOutput);
+                  filestream.on('end',()=>{
+                    sftp.end();
+                  })
                   filestream.pipe(res)
                 })
               })
@@ -64,6 +67,9 @@ exports.download = function (req,res) {
                     'Content-Length': downloadStat.size,
                   })
                   const filestream = sftp.createReadStream(downloadOutput);
+                  filestream.on('end',()=>{
+                    sftp.end();
+                  })
                   filestream.pipe(res)
                 })
               });
@@ -73,12 +79,15 @@ exports.download = function (req,res) {
               sftp.stat(itemPath,(err,itemStat)=>{
                 var mimetype = mime.getType(itemPath);
                 res.writeHead(200,{
-                  'Content-Disposition': `attachment; filename='${zipName}'`,
+                  'Content-Disposition': `attachment; filename='${itemName}'`,
                   'Content-Type': mimetype,
                   'Content-Length': itemStat.size,
                 })
                 var filestream = sftp.createReadStream(itemPath);
                 var had_error = false;
+                filestream.on('end',()=>{
+                  sftp.end();
+                })
                 filestream.pipe(res).on('error',(err)=>{
                   had_error = true;
                 }).on('close',()=>{

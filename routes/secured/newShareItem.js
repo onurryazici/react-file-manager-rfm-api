@@ -12,23 +12,21 @@ exports.newShareItem = function (req,res) {
 
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
-        SSH_Connection.connection.sftp((sftp_err,sftp) => {
-            const itemPathStr = API_FUNCTIONS.replaceSpecialChars(itemPath);
-            
-            const command = `NewShare.run ${itemPathStr} ${userData.join(' ')}`
-            console.log(command)
-            API.executeSshCommand(command).then((output)=>{
-                return res.status(200).json({
-                    statu:true,
-                    message:output.message,
-                });
-            
-            }).catch((err)=>{
-                return res.status(400).json({
-                    statu:false,
-                    message:err,
-                });
-            })
+        const itemPathStr = API_FUNCTIONS.replaceSpecialChars(itemPath);
+        
+        const command = `NewShare.run ${itemPathStr} ${userData.join(' ')}`
+        console.log(command)
+        API.executeSshCommand(command).then((output)=>{
+            return res.status(200).json({
+                statu:true,
+                message:output.message,
+            });
+        
+        }).catch((err)=>{
+            return res.status(400).json({
+                statu:false,
+                message:err,
+            });
         })
     }
     else
