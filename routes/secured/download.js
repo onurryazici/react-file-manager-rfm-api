@@ -9,13 +9,10 @@ exports.download = function (req,res) {
   var SSH_Connection      = API.getSSH();
   var SSH_User            = API.getUsername();
   var items               = req.query.items;
+  var outputName      = req.query.output;
   if(SSH_Connection !== null && SSH_Connection.isConnected()) 
   {
       SSH_Connection.connection.sftp((sftp_err,sftp) => {
-        if (sftp_err){
-          res.status(400).json({statu:false,message:"UNKNOWN_ERROR"});
-        }
-        
         if(Array.from(items).length > 1)
         {
           ParseItems(items).then((parsedItems)=>{
@@ -23,7 +20,7 @@ exports.download = function (req,res) {
               // COMPRESS ZIP AND DOWNLOAD
               var itemPath       = items[0];
               var itemParentPath = itemPath.substring(0,itemPath.lastIndexOf('/'));
-              const zipName = "drive-" + new Date().getTime() + ".zip";
+              const zipName = outputName;
               const command = `cd ${API_FUNCTIONS.replaceSpecialChars(itemParentPath)}` 
                   +` && zip -r -0 /home/${SSH_User}/drive-downloads/${zipName} ${parsedItems.join(' ')}`
 
@@ -54,7 +51,7 @@ exports.download = function (req,res) {
           sftp.lstat(itemPath,(err,stat)=>{
             if(stat.isDirectory()){
               // COMPRESS ZIP AND DOWNLOAD
-              const zipName = itemName + "-" + new Date().getTime() + ".zip";
+              const zipName = outputName;
               const command = `cd ${API_FUNCTIONS.replaceSpecialChars(itemParentPath)}` 
                   +` && zip -r -0 /home/${SSH_User}/drive-downloads/${API_FUNCTIONS.replaceSpecialChars(zipName)} ${API_FUNCTIONS.replaceSpecialChars(itemName)}`
               API.executeSshCommand(command).then(()=>{
@@ -68,7 +65,10 @@ exports.download = function (req,res) {
                   })
                   const filestream = sftp.createReadStream(downloadOutput);
                   filestream.on('end',()=>{
-                    sftp.end();
+                    sftp.unlink(downloadOutput,()=>{
+                      sftp.end();
+                    });
+                    
                   })
                   filestream.pipe(res)
                 })
@@ -79,7 +79,7 @@ exports.download = function (req,res) {
               sftp.stat(itemPath,(err,itemStat)=>{
                 var mimetype = mime.getType(itemPath);
                 res.writeHead(200,{
-                  'Content-Disposition': `attachment; filename='${itemName}'`,
+                  'Content-Disposition': `attachment; filename='${outputName}'`,
                   'Content-Type': mimetype,
                   'Content-Length': itemStat.size,
                 })

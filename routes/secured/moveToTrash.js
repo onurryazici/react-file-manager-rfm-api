@@ -13,7 +13,7 @@ exports.moveToTrash = function (req,res) {
     if(SSH_Connection !== null && SSH_Connection.isConnected()) 
     {
       ParseItems(unparsedItems,target).then((parsedItems)=>{
-        var command = `trash-put ${API_FUNCTIONS.replaceSpecialChars(parsedItems.join(' '))}`;
+        var command = `trash-put ${parsedItems.join(' ')}`;
         console.log(command)
         API.executeSshCommand(command)
         .then(()=>{
@@ -33,7 +33,7 @@ function ParseItems(unparsedItems,target){
     var parsedItems=[];
     for(let item of unparsedItems) {
       var itemLocation = target + "/" + item;
-      parsedItems.push(itemLocation);
+      parsedItems.push(`${API_FUNCTIONS.replaceSpecialChars(itemLocation)}`);
     }
     resolve(parsedItems);
   })
