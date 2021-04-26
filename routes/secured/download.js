@@ -9,7 +9,7 @@ exports.download = function (req,res) {
   var SSH_Connection      = API.getSSH();
   var SSH_User            = API.getUsername();
   var items               = req.query.items;
-  var outputName      = req.query.output;
+  var outputName          = req.query.output;
   if(SSH_Connection !== null && SSH_Connection.isConnected()) 
   {
       SSH_Connection.connection.sftp((sftp_err,sftp) => {
@@ -47,7 +47,7 @@ exports.download = function (req,res) {
           // DIRECT DOWNLOAD
           var itemPath = items[0];
           var itemParentPath = itemPath.substring(0,itemPath.lastIndexOf('/'));
-          var itemName = itemPath.substring(itemPath.lastIndexOf('/')+1,itemPath.length);
+          var itemName = itemPath.substring(itemPath.lastIndexOf('/') + 1, itemPath.length);
           sftp.lstat(itemPath,(err,stat)=>{
             if(stat.isDirectory()){
               // COMPRESS ZIP AND DOWNLOAD
@@ -79,7 +79,7 @@ exports.download = function (req,res) {
               sftp.stat(itemPath,(err,itemStat)=>{
                 var mimetype = mime.getType(itemPath);
                 res.writeHead(200,{
-                  'Content-Disposition': `attachment; filename='${outputName}'`,
+                  'Content-Disposition': `attachment; filename=${encodeURI(outputName)}`,
                   'Content-Type': mimetype,
                   'Content-Length': itemStat.size,
                 })
