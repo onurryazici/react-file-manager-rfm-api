@@ -18,9 +18,9 @@ exports.moveToDrive    = function (req,res) {
                         message:"PROCESS_SUCCESS",
                     });
                 }).catch((err)=>{
-                    res.status(404).json({statu:false,message:err})
+                    res.status(400).json({statu:false,message:err})
                 })
-        });
+        })
     }
     else{
         res.json({

@@ -24,7 +24,7 @@ exports.getDirectory = async function (req,res) {
         console.log(command)
         API.executeSshCommand(command).then((output)=>{
             const data = JSON.parse(output)
-            if(Array.from(data.items).length > 0) {
+            if(data.items.length > 0) {
                 if(rfmWindow === RFM_WindowType.RECYCLE_BIN){
                     return new Promise((resolve,reject)=>{
                         GetRecycleInfo(output,SSH_User).then((responseOutput)=>{

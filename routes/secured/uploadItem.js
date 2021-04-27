@@ -2,21 +2,6 @@ const multer = require('multer');
 const Messages = require('../../helper/message');
 var API           = require('../../helper/SSH_SESSION');
 var API_FUNCTIONS = require('../../helper/functions');
-const util = require('util');
-var fileNames=[];
-var storage = multer.diskStorage({
-    destination:function (req,file,cb){
-        cb(null,'upload-temp')
-    },
-    filename:function(req,file,cb){
-        let name=Date.now()+'_'+file.originalname;
-        fileNames.push(name);
-        cb(null,name)
-    }
-})
-
-var upload = multer({storage:storage}).array('file');
-
 
 exports.uploadItem = function (req,res) {
     var SSH_Connection = API.getSSH();
@@ -27,17 +12,20 @@ exports.uploadItem = function (req,res) {
             const filename = req.file.originalname;
             const target = `${targetLocation}/${filename}`;
             sftp.exists(target,(exist)=>{
+                
                 var suitableName = "";
                 if(exist)
                     suitableName=`(uploaded-${new Date().getTime()}) ${filename}`;
                 else
                     suitableName=filename;
-                const finalTarget = `${targetLocation}/${suitableName}`
+                const finalTarget = `${req.query.targetLocation}/${suitableName}`
                 return new Promise((resolve,reject)=>{
                     sftp.writeFile(`${finalTarget}`,req.file.buffer,"binary",(err)=>{
                         sftp.end()
-                        if(err)
+                        if(err){
+                            console.log("www " + err + " " + finalTarget)
                             reject();
+                        }
                         else
                             resolve();
                     })
