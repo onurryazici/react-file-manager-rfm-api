@@ -17,9 +17,8 @@ exports.getDirectory = async function (req,res) {
     var location                 = API_FUNCTIONS.replaceSpecialChars(req.body.location);
     var rfmWindow                = req.body.rfmWindow
 
-    if(SSH_Connection !== null && SSH_Connection.isConnected()) 
-    {   var target  = location;
-
+    if(SSH_Connection !== null && SSH_Connection.isConnected()) {   
+        var target  = location;
         var command = `GetData.run ${target}`;
         console.log(command)
         API.executeSshCommand(command).then((output)=>{
@@ -40,7 +39,7 @@ exports.getDirectory = async function (req,res) {
                 res.status(200).json(JSON.parse(output));
             }
         }).catch((err)=>{
-            console.log(err)
+            console.log("hata var")
             res.status(400).json({statu:false,items:[],message:err})
         })
     }
@@ -69,6 +68,8 @@ function GetRecycleInfo(data,SSH_User){
                         itemObject[i].restorePath = API_FUNCTIONS.replaceSpecialChars(out);
                         newItemObject.push(itemObject[i])
                         resolve();
+                    }).catch((errr)=>{
+                        reject();
                     })
                 });
                 promises.push(p);
@@ -84,5 +85,4 @@ function GetRecycleInfo(data,SSH_User){
             
         });
     })
-
 }

@@ -14,7 +14,6 @@ exports.moveToTrash = function (req,res) {
     {
       ParseItems(unparsedItems,target).then((parsedItems)=>{
         var command = `trash-put ${parsedItems.join(' ')}`;
-        console.log(command)
         API.executeSshCommand(command)
         .then(()=>{
             res.status(200).json({statu:true, message:"MOVE_TO_TRASH_SUCCESS"});

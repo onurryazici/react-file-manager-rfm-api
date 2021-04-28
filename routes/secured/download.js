@@ -46,14 +46,14 @@ exports.download = function (req, res) {
         var itemParentPath = itemPath.substring(0, itemPath.lastIndexOf('/'));
         var itemName = itemPath.substring(itemPath.lastIndexOf('/') + 1, itemPath.length);
         sftp.lstat(itemPath, (err, stat) => {
-          if (stat.isDirectory()) {
+          if (stat.isDirectory() || stat.isSymbolicLink()) {
             // COMPRESS ZIP AND DOWNLOAD
             const zipName = outputName;
             const command = `cd ${API_FUNCTIONS.replaceSpecialChars(itemParentPath)}`
               + ` && zip -r -0 /home/${SSH_User}/drive-downloads/${API_FUNCTIONS.replaceSpecialChars(zipName)} ${API_FUNCTIONS.replaceSpecialChars(itemName)}`
             API.executeSshCommand(command).then(() => {
               const downloadOutput = `/home/${SSH_User}/drive-downloads/${zipName}`
-              sftp.stat(downloadOutput, (err, downloadStat) => {
+              sftp.stat(downloadOutput, (errstat, downloadStat) => {
                 var mimetype = mime.getType(downloadOutput);
                 res.writeHead(200, {
                   'Content-Disposition': `attachment; filename='${zipName}'`,
