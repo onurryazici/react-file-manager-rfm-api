@@ -65,7 +65,6 @@ exports.download = function (req, res) {
                   sftp.unlink(downloadOutput, () => {
                     sftp.end();
                   });
-
                 })
                 filestream.pipe(res)
               })
