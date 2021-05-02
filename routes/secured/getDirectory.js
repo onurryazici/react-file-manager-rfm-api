@@ -39,7 +39,7 @@ exports.getDirectory = async function (req,res) {
                 res.status(200).json(JSON.parse(output));
             }
         }).catch((err)=>{
-            console.log("hata var")
+            console.log("hata var " + err)
             res.status(400).json({statu:false,items:[],message:err})
         })
     }

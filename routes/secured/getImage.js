@@ -22,15 +22,13 @@ exports.getImage = async function (req,res) {
                 const imageStream = sftp.createReadStream(absolutePath)
                 if(width === undefined || height === undefined)
                 {
-                    
                     imageStream.on('end',()=>{
                         sftp.end();
                     })
                     imageStream.pipe(res);
                 }
                 else{
-                    const resize = sharp().resize(150,100)
-                    .composite([{
+                    const resize = sharp().resize(150,100).composite([{
                         input:Buffer.from(`<svg><rect x="0" y="0" width="150" height="100" rx="50" ry="50"/></svg>`),
                         blend:'screen'
                     }]).png().on('error',(err)=>{

@@ -23,7 +23,6 @@ exports.uploadItem = function (req,res) {
                     sftp.writeFile(`${finalTarget}`,req.file.buffer,"binary",(err)=>{
                         sftp.end()
                         if(err){
-                            console.log("www " + err + " " + finalTarget)
                             reject();
                         }
                         else
