@@ -1,27 +1,38 @@
-var API = require('../../helper/SSH_SESSION');
-var API_FUNCTIONS = require('../../helper/functions');
+var SshSession      = require('../../helper/session');
+var HelperFunctions = require('../../helper/functions');
 exports.moveItems = function (req,res) {
-    var SSH_Connection = API.getSSH();
-    var unparsedItems  = req.body.items;
-    var target         = req.body.target;
+    //  <Summary>
+    //  ----------------- INPUT PARAMETERS --------------------
+    //  [ARRAY(TEXT)] items  : Item addresses to move items
+    //  [TEXT]        target : Target location to move items 
+    //  ----------------- OUTPUT PARAMETERS -------------------
+    //  [TRUE STATE]
+    //  "statu": true,
+    //  "message":"PROCESS_SUCCESS"
+    //
+    //  [FALSE STATE]
+    //  "statu": false
+    //  "message": "error"
+    //  </Summary>
+    var Client        = SshSession.getClient(req.user);
+    var unparsedItems = req.body.items;
+    var target        = req.body.target;
     //const updatePermissionCommand = `setfacl -Rbk ${items.join(' ')} ` /// önemli izinleri sıfırlar otherlar : --x
 
-    if(SSH_Connection !== null && SSH_Connection.isConnected()) 
+    if(Client !== null && Client.isConnected()) 
     {
-        
         ParseItems(unparsedItems).then((items)=>{
-            target = API_FUNCTIONS.replaceSpecialChars(target);
+            target = HelperFunctions.replaceSpecialChars(target);
             let command = `MoveItem.run  ${target} ${items.join(' ')}`;
             console.log(items.join(' '));
-            API.executeSshCommand(command)
-                .then(()=>{
-                    res.status(200).json({
-                        statu:true,
-                        message:"PROCESS_SUCCESS",
-                    });
-                }).catch((err)=>{
-                    res.status(404).json({statu:false,message:err})
-                })
+            SshSession.executeSshCommand(Client, command).then(()=>{
+                res.status(200).json({
+                    statu:true,
+                    message:"PROCESS_SUCCESS",
+                });
+            }).catch((err)=>{
+                res.status(404).json({statu:false,message:err})
+            })
         });
     }
     else{
@@ -36,7 +47,7 @@ function ParseItems(unparsedItems){
     return new Promise((resolve,reject)=>{
         let parsedItems = []
         unparsedItems.forEach(item => {
-            parsedItems.push(API_FUNCTIONS.replaceSpecialChars(item));      
+            parsedItems.push(HelperFunctions.replaceSpecialChars(item));      
         });
         resolve(parsedItems);
     })

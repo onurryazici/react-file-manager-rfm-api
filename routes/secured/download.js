@@ -1,29 +1,29 @@
-const API = require('../../helper/SSH_SESSION');
-const API_FUNCTIONS = require('../../helper/functions');
+const SshSession = require('../../helper/session');
+const HelperFunctions = require('../../helper/functions');
 const mime = require('mime');
 exports.download = function (req, res) {
   /// INPUTS
   /// "location" : Encoded Current directory with base64
   /// "dirname"  : Encoded new folder name with base64
 
-  var SSH_Connection = API.getSSH();
-  var SSH_User = API.getUsername();
-  var items = req.query.items;
+  var Client     = SshSession.getClient(req.username);
+  var username   = req.username;
+  var items      = req.query.items;
   var outputName = req.query.output;
-  if (SSH_Connection !== null && SSH_Connection.isConnected()) {
-    SSH_Connection.connection.sftp((sftp_err, sftp) => {
+  if (Client !== null && Client.isConnected()) {
+    Client.connection.sftp((sftp_err, sftp) => {
       if (Array.from(items).length > 1) {
         ParseItems(items).then((parsedItems) => {
           // MULTI DOWNLOAD 
           // COMPRESS ZIP AND DOWNLOAD
-          var itemPath = items[0];
+          var itemPath       = items[0];
           var itemParentPath = itemPath.substring(0, itemPath.lastIndexOf('/'));
           const zipName = outputName;
-          const command = `cd ${API_FUNCTIONS.replaceSpecialChars(itemParentPath)}`
-            + ` && zip -r -0 /home/${SSH_User}/drive-downloads/${zipName} ${parsedItems.join(' ')}`
+          const command = `cd ${HelperFunctions.replaceSpecialChars(itemParentPath)}`
+            + ` && zip -r -0 /home/${username}/drive-downloads/${zipName} ${parsedItems.join(' ')}`
 
-          API.executeSshCommand(command).then(() => {
-            const downloadOutput = `/home/${SSH_User}/drive-downloads/${zipName}`
+            SshSession.executeSshCommand(Client, command).then(() => {
+            const downloadOutput = `/home/${username}/drive-downloads/${zipName}`
             sftp.stat(downloadOutput, (err, downloadStat) => {
               var mimetype = mime.getType(downloadOutput);
               res.writeHead(200, {
@@ -49,10 +49,10 @@ exports.download = function (req, res) {
           if (stat.isDirectory() || stat.isSymbolicLink()) {
             // COMPRESS ZIP AND DOWNLOAD
             const zipName = outputName;
-            const command = `cd ${API_FUNCTIONS.replaceSpecialChars(itemParentPath)}`
-              + ` && zip -r -0 /home/${SSH_User}/drive-downloads/${API_FUNCTIONS.replaceSpecialChars(zipName)} ${API_FUNCTIONS.replaceSpecialChars(itemName)}`
-            API.executeSshCommand(command).then(() => {
-              const downloadOutput = `/home/${SSH_User}/drive-downloads/${zipName}`
+            const command = `cd ${HelperFunctions.replaceSpecialChars(itemParentPath)}`
+              + ` && zip -r -0 /home/${username}/drive-downloads/${HelperFunctions.replaceSpecialChars(zipName)} ${HelperFunctions.replaceSpecialChars(itemName)}`
+            SshSession.executeSshCommand(Client, command).then(() => {
+              const downloadOutput = `/home/${username}/drive-downloads/${zipName}`
               sftp.stat(downloadOutput, (errstat, downloadStat) => {
                 var mimetype = mime.getType(downloadOutput);
                 res.writeHead(200, {
@@ -111,7 +111,7 @@ function ParseItems(unparsedItems) {
   return new Promise((resolve, reject) => {
     let parsedItems = []
     unparsedItems.forEach(item => {
-      var itemPath = API_FUNCTIONS.replaceSpecialChars(item);
+      var itemPath = HelperFunctions.replaceSpecialChars(item);
       var itemName = itemPath.substring(itemPath.lastIndexOf('/') + 1, itemPath.length)
       parsedItems.push(itemName);
     });

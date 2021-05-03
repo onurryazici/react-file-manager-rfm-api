@@ -1,55 +1,47 @@
-const Messages = require('../../helper/message');
-var API      = require('../../helper/SSH_SESSION');
-var API_FUNCTIONS = require('../../helper/functions');
-var image = require('imagemagick')
-const sharp  =require('sharp');
+var SshSession = require('../../helper/session');
+const sharp    = require('sharp');
 exports.getImage = async function (req,res) {
-    // INPUT
-    // absolutePath : Encrypted image path with base64
-    var imageCache={};
-    var SSH_Connection           = API.getSSH();
-    var absolutePath             = req.query.absolutePath;
-    var width                    = req.query.width;
-    var height                   = req.query.height;
-    if(SSH_Connection !== null && SSH_Connection.isConnected()) 
+    //  <Summary>
+    //  ----------------- INPUT PARAMETERS --------------------
+    //  [TEXT] absolutePath : Item addresses to get image
+    //  [TEXT] width        : Image width for resizing (If not needed don't send)
+    //  [TEXT] height       : Image height for resizing (If not needed don't send)
+    //  ----------------- OUTPUT PARAMETERS -------------------
+    //  [TRUE STATE]
+    //  FILE PIPING
+    //
+    //  [FALSE STATE]
+    //  DISCONNECTING PIPING
+    //  </Summary>
+    var Client       = SshSession.getClient(req.username);
+    var absolutePath = req.query.absolutePath;
+    var width        = req.query.width;
+    var height       = req.query.height;
+    if(Client !== null && Client.isConnected()) 
     {   
-        SSH_Connection.connection.sftp((sftp_err,sftp) => {
-            if(sftp_err){
-                console.log("xx " + sftp_err)
-                //console.log("yy " + SSH_Connection.connection.sftp())
-            }
+        Client.connection.sftp((sftp_err,sftp) => {
+            const imageStream = sftp.createReadStream(absolutePath)
+            imageStream.on('end',()=>{
+                sftp.end();
+            })
+            imageStream.on('error',(error)=>{
+                console.log("konum " + absolutePath)
+                console.log("Okuma hatası " + error)
+            })
+            if(width === undefined || height === undefined)
+                imageStream.pipe(res);
             else{
-                const imageStream = sftp.createReadStream(absolutePath)
-                imageStream.on('end',()=>{
-                    sftp.end();
+                const resize = sharp().resize(150,100).composite([{
+                    input:Buffer.from(`<svg><rect x="0" y="0" width="150" height="100" rx="50" ry="50"/></svg>`),
+                    blend:'screen'
+                }]).png().on('error',(err)=>{
+                    console.log("Broken Image : " + err)
                 })
-                imageStream.on('error',(error)=>{
-                    console.log("konum " + absolutePath)
-                    console.log("Okuma hatası " + error)
-                })
-                if(width === undefined || height === undefined)
-                {
-                    imageStream.pipe(res);
-                }
-                else{
-                    const resize = sharp().resize(150,100).composite([{
-                        input:Buffer.from(`<svg><rect x="0" y="0" width="150" height="100" rx="50" ry="50"/></svg>`),
-                        blend:'screen'
-                    }]).png().on('error',(err)=>{
-                        console.log("Broken Image : " + err)
-                    })
-                    imageStream.pipe(resize).pipe(res);
-                }
-                
-
-                /*res.contentType('image/jpg');
-                res.end(thumbnail,'binary')*/
+                imageStream.pipe(resize).pipe(res);
             }
         });
-
-
         // working
-        /*SSH_Connection.connection.sftp((sftp_err,sftp) => {
+        /*Client.connection.sftp((sftp_err,sftp) => {
             var base64Data = [];
             var dataLength=0;
             var file = sftp.createReadStream(absolutePath)
@@ -67,7 +59,7 @@ exports.getImage = async function (req,res) {
     else{
         res.json({
             statu:false,
-            message:Messages.SESSION_NOT_STARTED
+            message:"SESSION_NOT_STARTED"
         });
     }
 }

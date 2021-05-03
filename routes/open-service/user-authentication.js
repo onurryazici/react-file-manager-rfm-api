@@ -1,14 +1,12 @@
-var API           = require('../../helper/SSH_SESSION');
-var API_FUNCTIONS = require('../../helper/functions');
-const jwt         = require('jsonwebtoken');
-const Client      = require('node-ssh').NodeSSH;
+const SshSession      = require('../../helper/session');
+const HelperFunctions = require('../../helper/functions');
+const jwt             = require('jsonwebtoken');
+const Client          = require('node-ssh').NodeSSH;
 
 exports.userAuthentication = async function(req,res){
     //let ip = req.headers["X-Forwarded-For"] || req.connection.remoteAddress;
-    
     let ip = "192.168.1.159";
-    let banned = API_FUNCTIONS.isIpBanned(ip);
-
+    let banned = HelperFunctions.isIpBanned(ip);
     if(banned){
          res.json({
             statu   : false,
@@ -26,9 +24,7 @@ exports.userAuthentication = async function(req,res){
             keepaliveInterval : 30 * 1000, // 30 minutes for idle as milliseconds
             keepaliveCountMax : 1,
         }).then(()=>{
-            API.addClient(req.body.username, client)
-            /*API.setUsername(req.body.username);
-            API.setSSH(SSH_Connection);*/
+            SshSession.addClient(req.body.username, client)
             const payload = req.body.username;
             const token = jwt.sign({payload},req.app.get('api_secret_key'),{
                 expiresIn: '30m' //30 min
@@ -39,8 +35,7 @@ exports.userAuthentication = async function(req,res){
                 message          : "LOGIN_SUCCESSFULL",
                 token            : token
             });
-        }).catch((error)=>{
-            API.setSSH(null);
+        }).catch(()=>{
             return res.status(200).json({
                 statu            : false,
                 loginSuccessfull : false,

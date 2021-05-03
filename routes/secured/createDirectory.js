@@ -1,20 +1,41 @@
-var API = require('../../helper/SSH_SESSION');
-
+const SshSession         = require('../../helper/session');
 exports.createDirectory = async function (req,res) {
-  /// INPUTS
-  /// "location" : Encoded Current directory with base64
-  /// "dirname"  : Encoded new folder name with base64
-
-
-  var SSH_Connection      = API.getSSH();
-  var location            = req.body.location;
-  var dirname             = req.body.dirname;
-
+  //  <Summary>
+    //  ----------------- INPUT PARAMETERS --------------------
+    //  [TEXT]    location : Address of the directory to create folder
+    //  [BOOLEAN] dirname  : Folder name to directory 
+    //
+    //  ----------------- OUTPUT PARAMETERS -------------------
+    //  [TRUE STATE]
+    //  "statu": true,
+    //  "items": [
+    //   {
+    //      "owner": "main",
+    //      "extension": "",
+    //      "lastAccessTime": "",
+    //      "read": true,
+    //      "lastModifyTime": "",
+    //      "name": "",
+    //      "absolutePath": "",
+    //      "type": "directory | file",
+    //      "sharedWith": [],
+    //      "write": false,
+    //      "execute": true
+    //   ]},
+    //  message:"DIRECTORY_CREATE_SUCCESS"
+    //  [FALSE STATE]
+    //  "statu": false
+    //  "message": ""
+    //  </Summary>
+  var Client   = SshSession.getClient(req.username);
+  var username = req.username
+  var location = req.body.location;
+  var dirname  = req.body.dirname;
   
   const newDirectoryPath = location + "/" + dirname;
-    if(SSH_Connection !== null && SSH_Connection.isConnected()) 
+    if(Client !== null && Client.isConnected()) 
     {
-      SSH_Connection.connection.sftp((sftp_err,sftp) => {
+      Client.connection.sftp((sftp_err,sftp) => {
             if (sftp_err){
               res.status(400).json({statu:false,message:"UNKNOWN_ERROR"});}
             sftp.mkdir(newDirectoryPath, function(error) {
@@ -23,7 +44,7 @@ exports.createDirectory = async function (req,res) {
               res.status(304).json({statu:false,message:"UNKNOWN_ERROR",details:error.code});
             } else {
               const item={
-                owner:API.getUsername(),
+                owner:username,
                 extension:"",
                 read:true,
                 size:"4 Kb",

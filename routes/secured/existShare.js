@@ -1,25 +1,35 @@
-var API = require('../../helper/SSH_SESSION');
-var API_FUNCTIONS = require('../../helper/functions');
+var SshSession = require('../../helper/session');
+var HelperFunctions = require('../../helper/functions');
 exports.existShareItem = function (req,res) {
+    //  <Summary>
+    //  ----------------- INPUT PARAMETERS --------------------
+    //  [TEXT] itemPath   : Item address of already shared item
+    //  [TEXT] user       : Name of the user to share
+    //  [TEXT] permission : [rwx] [r-x] Like this.. 
+    //  [TEXT] location   : Şimdilik ne olduğunu unuttum sonra yazarım :-) 
+    //  ----------------- OUTPUT PARAMETERS -------------------
+    //  [TRUE STATE]
+    //  "statu": true,
+    //  "message":"PROCESS_SUCCESS"
+    //
+    //  [FALSE STATE]
+    //  "statu": false
+    //  "message": "error"
+    //  </Summary>
 
-    /// INPUT
-    /// item        : Encrypted item path with base64
-    /// user        : username of person to add
-    /// permissions : Permissions of item 
-    var SSH_Connection = API.getSSH();
-    var itemPath = req.body.itemPath;
-    var user = req.body.user;
+    var Client     = SshSession.getSSH();
+    var itemPath   = req.body.itemPath;
+    var user       = req.body.user;
     var permission = req.body.permission;
     var location   = req.body.location;
-    if(SSH_Connection !== null && SSH_Connection.isConnected()) 
+    if(Client !== null && Client.isConnected()) 
     {
-        const itemPathStr = API_FUNCTIONS.replaceSpecialChars(itemPath);  
-        const command = `ExistShare.run ${location} ${itemPathStr} ${user}:${permission}`
-        console.log(command)
-        API.executeSshCommand(command).then((output)=>{
+        const itemPathStr = HelperFunctions.replaceSpecialChars(itemPath);  
+        const command     = `ExistShare.run ${location} ${itemPathStr} ${user}:${permission}`
+        SshSession.executeSshCommand(Client, command).then((output)=>{
             return res.status(200).json({
                 statu:true,
-                message:output.message,
+                message:"PROCESS_SUCCESS",
             });
             
         }).catch((err)=>{

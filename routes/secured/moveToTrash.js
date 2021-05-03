@@ -1,30 +1,43 @@
-var API = require('../../helper/SSH_SESSION');
-var API_FUNCTIONS = require('../../helper/functions');
+var SshSession      = require('../../helper/session');
+var HelperFunctions = require('../../helper/functions');
 exports.moveToTrash = function (req,res) {
-    /// INPUTS
-    /// "items[]" :  Encoded Item's absolute path with base64
-    /// "location":  Location of the items
+    //  <Summary>
+    //  ----------------- INPUT PARAMETERS --------------------
+    //  [ARRAY(TEXT)] items  : Item addresses to move trash
+    //  [TEXT]        target : Location of item to move trash 
+    //  ----------------- OUTPUT PARAMETERS -------------------
+    //  [TRUE STATE]
+    //  "statu": true,
+    //  "message":"PROCESS_SUCCESS"
+    //
+    //  [FALSE STATE]
+    //  "statu": false
+    //  "message": "error"
+    //  </Summary>
 
-    var SSH_Connection = API.getSSH();
-    var SSH_User       = API.getUsername();
-    var unparsedItems  = req.body.items;
-    var target = req.body.location;
+    var Client        = SshSession.getClient(req.username);
+    var unparsedItems = req.body.items;
+    var target        = req.body.location;
     
-    if(SSH_Connection !== null && SSH_Connection.isConnected()) 
+    if(Client !== null && Client.isConnected()) 
     {
       ParseItems(unparsedItems,target).then((parsedItems)=>{
         var command = `trash-put ${parsedItems.join(' ')}`;
-        API.executeSshCommand(command)
+        SshSession.executeSshCommand(Client, command)
         .then(()=>{
-            res.status(200).json({statu:true, message:"MOVE_TO_TRASH_SUCCESS"});
+            res.status(200).json({statu:true, message:"PROCESS_SUCCESS"});
         }).catch((err)=>{
-          console.log("hataaa " + err)
-            res.status(400).json({statu:false, items:[]})
+            res.status(400).json({statu:false, message:err})
         })
+      }).catch((err)=>{
+        res.status(400).json({statu:false, message:err})
       })
-      .catch((err)=>{
-        console.log(err)
-      })
+    }
+    else{
+      return res.json({
+        statu:false,
+        message:"SESSION_NOT_STARTED"
+      });
     }
 }
 function ParseItems(unparsedItems,target){
@@ -32,7 +45,7 @@ function ParseItems(unparsedItems,target){
     var parsedItems=[];
     for(let item of unparsedItems) {
       var itemLocation = target + "/" + item;
-      parsedItems.push(`${API_FUNCTIONS.replaceSpecialChars(itemLocation)}`);
+      parsedItems.push(`${HelperFunctions.replaceSpecialChars(itemLocation)}`);
     }
     resolve(parsedItems);
   })

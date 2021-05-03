@@ -1,18 +1,28 @@
-const multer = require('multer');
-const Messages = require('../../helper/message');
-var API           = require('../../helper/SSH_SESSION');
-var API_FUNCTIONS = require('../../helper/functions');
+var SshSession      = require('../../helper/session');
+var HelperFunctions = require('../../helper/functions');
 
 exports.uploadItem = function (req,res) {
-    var SSH_Connection = API.getSSH();
-    var targetLocation = API_FUNCTIONS.replaceSpecialChars(req.query.targetLocation);
-    if(SSH_Connection !== null && SSH_Connection.isConnected()) 
+    //  <Summary>
+    //  ----------------- INPUT PARAMETERS --------------------
+    //  [TEXT] targetLocation : Target location to upload of items 
+    //  [UPLOAD] 
+    //  ----------------- OUTPUT PARAMETERS -------------------
+    //  [TRUE STATE]
+    //  "statu": true,
+    //  "message":"PROCESS_SUCCESS"
+    //
+    //  [FALSE STATE]
+    //  "statu": false
+    //  "message": "error"
+    //  </Summary>
+    var Client         = SshSession.getClient(req.username);
+    var targetLocation = HelperFunctions.replaceSpecialChars(req.query.targetLocation);
+    if(Client !== null && Client.isConnected()) 
     {
-        SSH_Connection.connection.sftp((sftp_err,sftp) => {
+        Client.connection.sftp((sftp_err,sftp) => {
             const filename = req.file.originalname;
             const target = `${targetLocation}/${filename}`;
             sftp.exists(target,(exist)=>{
-                
                 var suitableName = "";
                 if(exist)
                     suitableName=`(uploaded-${new Date().getTime()}) ${filename}`;
@@ -22,19 +32,17 @@ exports.uploadItem = function (req,res) {
                 return new Promise((resolve,reject)=>{
                     sftp.writeFile(`${finalTarget}`,req.file.buffer,"binary",(err)=>{
                         sftp.end()
-                        if(err){
+                        if(err)
                             reject();
-                        }
                         else
                             resolve();
                     })
                 }).then(()=>{
-                    const command = `GetData.run ${API_FUNCTIONS.replaceSpecialChars(finalTarget)}`
-                    API.executeSshCommand(command).then((output)=>{
+                    const command = `GetData.run ${HelperFunctions.replaceSpecialChars(finalTarget)}`
+                    SshSession.executeSshCommand(Client, command).then((output)=>{
                         res.status(200).json(JSON.parse(output));
-                    })
-                }).catch((err)=>{
-                    res.status(400).json({statu:false,items:[],message:err})
+                    })}).catch((err)=>{
+                        res.status(400).json({statu:false,items:[],message:err})
                 })
             })
         });

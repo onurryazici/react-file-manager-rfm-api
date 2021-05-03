@@ -1,15 +1,23 @@
-var API = require('../../helper/SSH_SESSION');
-var API_FUNCTIONS   = require('../../helper/functions');
+var SshSession = require('../../helper/session');
 exports.isUserExist = function (req,res) {
+    //  <Summary>
+    //  ----------------- INPUT PARAMETERS --------------------
+    //  [TEXT] user : username of person to query
+    //  ----------------- OUTPUT PARAMETERS -------------------
+    //  [TRUE STATE]
+    //  "statu": true,
+    //  "message":"USER_EXIST"
+    //
+    //  [FALSE STATE]
+    //  "statu": false
+    //  "message": "NO_SUCH_USER"
+    //  </Summary>
+    var Client = SshSession.getClient(req.username);
+    var user   = req.body.user;
 
-    /// INPUT
-    /// user        : username of person to query
-    var SSH_Connection = API.getSSH();
-    var user           = req.body.user;
-
-    if(SSH_Connection !== null && SSH_Connection.isConnected()) 
+    if(Client !== null && Client.isConnected()) 
     {
-        API.executeSshCommand(`getent passwd ${user}`).then((exist)=>{
+        SshSession.executeSshCommand(Client, `getent passwd ${user}`).then((exist)=>{
             if (exist.length > 0){
                 return res.status(200).json({
                     statu:true,

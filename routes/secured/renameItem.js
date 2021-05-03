@@ -1,20 +1,34 @@
-var API = require('../../helper/SSH_SESSION');
+var SshSession = require('../../helper/session');
 
 exports.renameItem = function (req,res) {
-    /// INPUTS
-    /// "itemPath" : Encoded item path with base64
-    /// "newName"  : Encoded new name of item with base64
+    //  <Summary>
+    //  ----------------- INPUT PARAMETERS --------------------
+    //  [TEXT] itemPath  : Address of item to rename item 
+    //  [TEXT] itemType  : For specifying item type [directory | file]
+    //  [TEXT] extension : For specifying item extension [for file]
+    //  [TEXT] newName   : For specifying new name of item
+    //  ----------------- OUTPUT PARAMETERS -------------------
+    //  [TRUE STATE]
+    //  "statu": true,
+    //  "message":"ITEM_RENAME_SUCCESS",
+    //  "newItemName":name
+    //  
+    //  [FALSE STATE]
+    //  statu:false,
+    //  message:"UNKNOWN_ERROR",
+    //  details:"error detail"
+    //  </Summary>
     
   
-    var SSH_Connection = API.getSSH();
-    var item           = req.body.itemPath;
-    var type           = req.body.type;
-    var extension      = req.body.extension;
-    var newName        = req.body.newName;
+    var Client    = SshSession.getClient(req.username);
+    var item      = req.body.itemPath;
+    var type      = req.body.type;
+    var extension = req.body.extension;
+    var newName   = req.body.newName;
 
-    if(SSH_Connection !== null && SSH_Connection.isConnected()) 
+    if(Client !== null && Client.isConnected()) 
     {
-        SSH_Connection.connection.sftp((sftp_err,sftp) => {
+        Client.connection.sftp((sftp_err,sftp) => {
             if (sftp_err)
                 res.status(400).json({statu:false,message:"UNKNOWN_ERROR"});   
             var itemPath = item.substring(0,item.lastIndexOf('/'));

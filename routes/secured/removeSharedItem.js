@@ -1,20 +1,28 @@
-var API = require('../../helper/SSH_SESSION');
-var API_FUNCTIONS = require('../../helper/functions');
+var SshSession = require('../../helper/session');
+var HelperFunctions = require('../../helper/functions');
 exports.removeSharedItem = function (req,res) {
-    /// INPUTS
-    /// "items[]" :  Encoded Item's absolute path with base64
-    /// "location":  Location of the items
-    var SSH_Connection = API.getSSH();
-    var SSH_User       = API.getUsername();
+    //  <Summary>
+    //  ----------------- INPUT PARAMETERS --------------------
+    //  [ARRAY(TEXT)] items : Address of item to remove shared items 
+    //
+    //  ----------------- OUTPUT PARAMETERS -------------------
+    //  [TRUE STATE]
+    //  "statu": true,
+    //  "message":"PROCESS_SUCCESS"
+    //
+    //  [FALSE STATE]
+    //  "statu": false
+    //  "items": []
+    //  </Summary>
+    var Client         = SshSession.getSSH();
     var unparsedItems  = req.body.items;
 
-    if(SSH_Connection !== null && SSH_Connection.isConnected()) 
+    if(Client !== null && Client.isConnected()) 
     {
           ParseItems(unparsedItems).then((parsedItems)=>{
             var command = `rm -rf ${parsedItems.join(' ')}`
             console.log(command)
-            API.executeSshCommand(command)
-            .then(()=>{
+            SshSession.executeSshCommand(Client, command).then(()=>{
                 res.status(200).json({statu:true, message:"PROCESS_SUCCESS"});
             }).catch((err)=>{
                 res.status(400).json({statu:false, items:[]})
@@ -29,7 +37,7 @@ function ParseItems(unparsedItems){
   return new Promise((resolve,reject)=>{
     var parsedItems=[];
     for(let item of unparsedItems) {
-      const formatted = API_FUNCTIONS.replaceSpecialChars(item)
+      const formatted = HelperFunctions.replaceSpecialChars(item)
       parsedItems.push(formatted);
     }
     resolve(parsedItems);

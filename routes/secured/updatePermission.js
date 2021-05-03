@@ -1,21 +1,29 @@
-var API = require('../../helper/SSH_SESSION');
-var API_FUNCTIONS = require('../../helper/functions');
+var SshSession      = require('../../helper/session');
 exports.updatePermission = function (req,res) {
-
-    /// INPUT
-    /// item        : Encrypted item path with base64
-    /// user        : username of person to add
-    /// permissions : Permissions of item 
-    var SSH_Connection = API.getSSH();
+    //  <Summary>
+    //  ----------------- INPUT PARAMETERS --------------------
+    //  [TEXT] user       : username to update permission
+    //  [TEXT] permission : "rwx" "r-x" Like this..
+    //  [TEXT] itemPath   : Item address to permission update 
+    //  ----------------- OUTPUT PARAMETERS -------------------
+    //  [TRUE STATE]
+    //  "statu": true,
+    //  "message":"PROCESS_SUCCESS"
+    //
+    //  [FALSE STATE]
+    //  "statu": false
+    //  "message": "error"
+    //  </Summary>
+    var Client      = SshSession.getClient(req.username);
     var user        = req.body.user;
     var permission  = req.body.permission;
     var itemPath    = req.body.itemPath;
-    if(SSH_Connection !== null && SSH_Connection.isConnected()) 
+    if(Client !== null && Client.isConnected()) 
     {
         var updateD_PermissionCommand=`setfacl -Rm d:${user}:${permission} ${itemPath}`;
         var updateU_PermissionCommand=`setfacl -Rm u:${user}:${permission} ${itemPath}`;
         var command = `${updateD_PermissionCommand} && ${updateU_PermissionCommand}`;
-        API.executeSshCommand(command).then(()=>{
+        SshSession.executeSshCommand(Client, command).then(()=>{
             return res.status(200).json({
                 statu:true,
                 message:"PROCESS_SUCCESS",

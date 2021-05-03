@@ -1,27 +1,35 @@
-var API = require('../../helper/SSH_SESSION');
+var SshSession = require('../../helper/session');
 var API_FUNCTIONS = require('../../helper/functions');
 exports.newShareItem = function (req,res) {
+    //  <Summary>
+    //  ----------------- INPUT PARAMETERS --------------------
+    //  [TEXT] userData : "username:rwx" "username:r-x" Like this..
+    //  [TEXT] itemPath : Item address to new share 
+    //  ----------------- OUTPUT PARAMETERS -------------------
+    //  [TRUE STATE]
+    //  "statu": true,
+    //  "message":"PROCESS_SUCCESS"
+    //
+    //  [FALSE STATE]
+    //  "statu": false
+    //  "message": "error"
+    //  </Summary>
 
-    /// INPUT
-    /// item        : Encrypted item path with base64
-    /// user        : username of person to add
-    /// permissions : Permissions of item 
-    var SSH_Connection = API.getSSH();
+    var Client = SshSession.getClient(req.username);
     var itemPath = req.body.itemPath;
     var userData = req.body.userData;
 
-    if(SSH_Connection !== null && SSH_Connection.isConnected()) 
+    if(Client !== null && Client.isConnected()) 
     {
         const itemPathStr = API_FUNCTIONS.replaceSpecialChars(itemPath);
         
         const command = `NewShare.run ${itemPathStr} ${userData.join(' ')}`
         console.log(command)
-        API.executeSshCommand(command).then((output)=>{
+        SshSession.executeSshCommand(Client, command).then((output)=>{
             return res.status(200).json({
                 statu:true,
                 message:output.message,
             });
-        
         }).catch((err)=>{
             return res.status(400).json({
                 statu:false,

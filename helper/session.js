@@ -10,14 +10,8 @@ function addClient(_username, _clientData){
 function getClient(_username){
     return clients[_username];
 }
-function setSSH(ssh){
-    SSH_Connection=ssh;
-}
-function setUsername(usernameValue){
-    username=usernameValue;
-}
-function getUsername(){
-    return username;
+function removeClient(_username){
+    delete clients[_username]; // BU OLMAYABİLİR
 }
 function executeSshCommand(_client, _command) {
     return new Promise((resolve, reject) => {
@@ -32,9 +26,7 @@ function executeSshCommand(_client, _command) {
 }
 module.exports = {
     getClient,
-    setSSH,
-    getUsername,
-    setUsername,
     executeSshCommand,
-    addClient
+    addClient,
+    removeClient
 } 
