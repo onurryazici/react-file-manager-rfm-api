@@ -20,11 +20,15 @@ exports.getImage = async function (req,res) {
             }
             else{
                 const imageStream = sftp.createReadStream(absolutePath)
+                imageStream.on('end',()=>{
+                    sftp.end();
+                })
+                imageStream.on('error',(error)=>{
+                    console.log("konum " + absolutePath)
+                    console.log("Okuma hatası " + error)
+                })
                 if(width === undefined || height === undefined)
                 {
-                    imageStream.on('end',()=>{
-                        sftp.end();
-                    })
                     imageStream.pipe(res);
                 }
                 else{
@@ -33,9 +37,6 @@ exports.getImage = async function (req,res) {
                         blend:'screen'
                     }]).png().on('error',(err)=>{
                         console.log("Broken Image : " + err)
-                    })
-                    imageStream.on('end',()=>{
-                        sftp.end();
                     })
                     imageStream.pipe(resize).pipe(res);
                 }
