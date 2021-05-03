@@ -1,9 +1,11 @@
-const { NodeSSH } = require('node-ssh');
 var API           = require('../../helper/SSH_SESSION');
 var API_FUNCTIONS = require('../../helper/functions');
 const jwt         = require('jsonwebtoken');
+const Client      = require('node-ssh').NodeSSH;
+
 exports.userAuthentication = async function(req,res){
     //let ip = req.headers["X-Forwarded-For"] || req.connection.remoteAddress;
+    
     let ip = "192.168.1.159";
     let banned = API_FUNCTIONS.isIpBanned(ip);
 
@@ -15,8 +17,8 @@ exports.userAuthentication = async function(req,res){
         });
     }
     else{     
-        var SSH_Connection = new NodeSSH();   
-        SSH_Connection.connect({
+        var client = new Client();   
+        client.connect({
             host              : '127.0.0.1',
             port              : 22,
             username          : req.body.username,
@@ -24,8 +26,9 @@ exports.userAuthentication = async function(req,res){
             keepaliveInterval : 30 * 1000, // 30 minutes for idle as milliseconds
             keepaliveCountMax : 1,
         }).then(()=>{
-            API.setUsername(req.body.username);
-            API.setSSH(SSH_Connection);
+            API.addClient(req.body.username, client)
+            /*API.setUsername(req.body.username);
+            API.setSSH(SSH_Connection);*/
             const payload = req.body.username;
             const token = jwt.sign({payload},req.app.get('api_secret_key'),{
                 expiresIn: '30m' //30 min

@@ -1,6 +1,6 @@
 const Messages = require('../../helper/message');
 var API      = require('../../helper/SSH_SESSION');
-var API_FUNCTIONS = require('../../helper/functions');
+var HelperFunctions = require('../../helper/functions');
 const RFM_WindowType = {
     DRIVE:"DRIVE",
     SHARED_WITH_ME:"SHARED_WITH_ME",
@@ -12,23 +12,21 @@ exports.getDirectory = function (req,res) {
     // isItRecycleBin : For viewing trash [true,false]
 
     
-    var SSH_Connection           = API.getSSH();
-    var SSH_User                 = API.getUsername();
-    var location                 = API_FUNCTIONS.replaceSpecialChars(req.body.location);
-    var rfmWindow                = req.body.rfmWindow
+    var Client     = API.getClient(req.username);
+    var username   = req.username//API.getUsername();
+    var location   = HelperFunctions.replaceSpecialChars(req.body.location);
+    var rfmWindow  = req.body.rfmWindow
 
-    if(SSH_Connection !== null && SSH_Connection.isConnected()) {   
+    if(Client !== null && Client.isConnected()) {   
         var target  = location;
         var command = `GetData.run ${target}`;
-        //console.log(SSH_Connection.connection.config)
-        API.executeSshCommand(command).then((output)=>{
+        console.log(command)
+        API.executeSshCommand(Client, command).then((output)=>{
             const data = JSON.parse(output)
             if(Array.from(data.items).length > 0) {
                 if(rfmWindow === RFM_WindowType.RECYCLE_BIN){
-                    return new Promise((resolve,reject)=>{
-                        GetRecycleInfo(output,SSH_User).then((responseOutput)=>{
-                            res.status(200).json(responseOutput);
-                        })
+                    GetRecycleInfo(output, Client, username).then((responseOutput)=>{
+                        res.status(200).json(responseOutput);
                     })
                 }
                 else {
@@ -52,30 +50,31 @@ exports.getDirectory = function (req,res) {
 }
 
 
-function GetRecycleInfo(data,SSH_User){
+function GetRecycleInfo(data,_client, _username){
     return new Promise((resolve,reject)=>{
-        var originalData = JSON.parse(data);
-        var itemObject = originalData.items;
+        var originalData  = JSON.parse(data);
+        var itemObject    = originalData.items;
         var newItemObject = [];
-        var promises = [];
+        var promises      = [];
         
         return new Promise((resolve)=> { 
             for (let i = 0; i < Array.from(itemObject).length; i++) 
             {
                 var p = new Promise(resolve => {
-                    const recycleInfoLocation = `/home/${SSH_User}/.local/share/Trash/info/${API_FUNCTIONS.replaceSpecialChars(itemObject[i].name)}.trashinfo`
-                    API.executeSshCommand(`cat ${recycleInfoLocation} | head -2 | tail -1 | cut -c 6-`).then((out)=>{
-                        itemObject[i].restorePath = API_FUNCTIONS.replaceSpecialChars(out);
+                    const recycleInfoLocation = `/home/${_username}/.local/share/Trash/info/${HelperFunctions.replaceSpecialChars(itemObject[i].name)}.trashinfo`
+                    const getInfoCommand = `cat ${recycleInfoLocation} | head -2 | tail -1 | cut -c 6-` 
+                    API.executeSshCommand(_client,getInfoCommand).then((out)=>{
+                        itemObject[i].restorePath = HelperFunctions.replaceSpecialChars(out);
                         newItemObject.push(itemObject[i])
                         resolve();
-                    }).catch((errr)=>{
+                    }).catch((parseError)=>{
                         reject();
                     })
                 });
                 promises.push(p);
-                if(i === Array.from(itemObject).length - 1){
+
+                if(i === Array.from(itemObject).length - 1)
                     resolve();
-                } 
             }
         }).then(()=>{
             Promise.all(promises).then(()=>{
