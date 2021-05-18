@@ -42,5 +42,5 @@ router.post('/secured/moveToDrive', moveToDrive);
 router.get('/secured/emptyTrash',emptyTrash);
 router.post('/secured/restoreItems',restoreItems);
 router.get('/secured/download', cors({exposedHeaders:['Content-Disposition']}), download);
-router.get('/getImage',getImage);
+router.get('/secured/getImage',getImage);
 module.exports = router;

@@ -25,7 +25,7 @@ exports.isUserExist = function (req,res) {
                 });
             }
             else{
-                return res.status(400).json({
+                return res.status(200).json({
                     statu:false,
                     message:"NO_SUCH_USER",
                 });

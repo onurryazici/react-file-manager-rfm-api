@@ -15,11 +15,11 @@ exports.createCopy = async function (req,res) {
     //  "message": "error"
     //  </Summary>
 
-    var SSH_Connection = SshSession.getSSH();
+    var Client         = SshSession.getClient(req.username);
     var unparsedItems  = req.body.items;
     var target         = req.body.target;
 
-    if(SSH_Connection !== null && SSH_Connection.isConnected()) 
+    if(Client !== null && Client.isConnected()) 
     {
         ParseItems(unparsedItems).then((items)=>{
             const _target = HelperFunctions.replaceSpecialChars(target);

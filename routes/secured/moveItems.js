@@ -14,11 +14,10 @@ exports.moveItems = function (req,res) {
     //  "statu": false
     //  "message": "error"
     //  </Summary>
-    var Client        = SshSession.getClient(req.user);
+    var Client        = SshSession.getClient(req.username);
     var unparsedItems = req.body.items;
     var target        = req.body.target;
     //const updatePermissionCommand = `setfacl -Rbk ${items.join(' ')} ` /// önemli izinleri sıfırlar otherlar : --x
-
     if(Client !== null && Client.isConnected()) 
     {
         ParseItems(unparsedItems).then((items)=>{
