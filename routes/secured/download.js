@@ -17,7 +17,7 @@ exports.download = function (req, res) {
           // MULTI DOWNLOAD 
           // COMPRESS ZIP AND DOWNLOAD
           var itemPath       = items[0];
-          var itemParentPath = itemPath.substring(0, itemPath.lastIndexOf('/'));
+          var itemParentPath = itemPath.substring(0, itemPath.Of('/'));
           const zipName = outputName;
           const command = `cd ${HelperFunctions.replaceSpecialChars(itemParentPath)}`
             + ` && zip -r -0 /home/${username}/drive-downloads/${zipName} ${parsedItems.join(' ')}`

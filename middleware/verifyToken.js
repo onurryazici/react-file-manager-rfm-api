@@ -3,10 +3,10 @@ const { Messages } = require('../helper/message');
 
 module.exports = (req,res,next) => {
     const token = req.headers['x-access-token'] || req.body.token || req.query.token || req.query.jwt;
-    //console.log("TOKEN IS " + req.query.jwt)
     if(token){
         jwt.verify(token,req.app.get('api_secret_key'),(err,decoded)=>{
             if(err){
+
                 res.json({
                     statu:false,
                     message:Messages.FAILED_AUTHENTICATE_TOKEN,
@@ -21,7 +21,6 @@ module.exports = (req,res,next) => {
         });
     }
     else{
-
         res.json({
             statu:false,
             message: Messages.TOKEN_NOT_PROVIDED

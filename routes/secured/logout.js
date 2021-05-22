@@ -1,7 +1,7 @@
 var SshSession = require('../../helper/session');
 exports.logout = function (req,res) {
     
-    var Client = SshSession.getSSH();
+    var Client = SshSession.getClient(req.username);
     if(Client !== null && Client.isConnected()) 
     {   
         Client.connection.end();

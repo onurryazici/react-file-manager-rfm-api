@@ -17,7 +17,7 @@ exports.existShareItem = function (req,res) {
     //  "message": "error"
     //  </Summary>
 
-    var Client     = SshSession.getSSH();
+    var Client     = SshSession.getClient(req.username);
     var itemPath   = req.body.itemPath;
     var user       = req.body.user;
     var permission = req.body.permission;

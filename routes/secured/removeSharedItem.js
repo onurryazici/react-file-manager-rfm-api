@@ -14,23 +14,22 @@ exports.removeSharedItem = function (req,res) {
     //  "statu": false
     //  "items": []
     //  </Summary>
-    var Client         = SshSession.getSSH();
+    var Client         = SshSession.getClient(req.username);
     var unparsedItems  = req.body.items;
-
     if(Client !== null && Client.isConnected()) 
     {
-          ParseItems(unparsedItems).then((parsedItems)=>{
-            var command = `rm -rf ${parsedItems.join(' ')}`
-            console.log(command)
-            SshSession.executeSshCommand(Client, command).then(()=>{
-                res.status(200).json({statu:true, message:"PROCESS_SUCCESS"});
-            }).catch((err)=>{
-                res.status(400).json({statu:false, items:[]})
-            })
+        ParseItems(unparsedItems).then((parsedItems)=>{
+          var command = `rm -rf ${parsedItems.join(' ')}`
+          console.log(command)
+          SshSession.executeSshCommand(Client, command).then(()=>{
+              res.status(200).json({statu:true, message:"PROCESS_SUCCESS"});
+          }).catch((err)=>{
+              res.status(400).json({statu:false, items:[]})
           })
-          .catch((err)=>{
-            console.log(err)
-          })
+        })
+        .catch((err)=>{
+          console.log(err)
+        })
     }
 }
 function ParseItems(unparsedItems){
