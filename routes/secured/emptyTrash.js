@@ -15,9 +15,10 @@ exports.emptyTrash = function (req,res) {
     var Client = SshSession.getClient(req.username);
     if(Client !== null && Client.isConnected()) 
     {
-        SshSession.executeSshCommand("trash-empty").then(()=>{
+        SshSession.executeSshCommand(Client, "trash-empty").then(()=>{
             res.status(200).json({statu:true, message:"PROCESS_SUCCESS"});
         }).catch((err)=>{
+            console.log(err)
             res.status(400).json({statu:false, message:err})
         })
     }

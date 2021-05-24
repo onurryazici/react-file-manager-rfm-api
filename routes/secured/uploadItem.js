@@ -54,26 +54,4 @@ exports.uploadItem = function (req,res) {
             message:"SESSION_NOT_STARTED"
         });
     }
-    // IMPORTANT
-    //console.log('body', req.file.length, req.file)
-
-    /*res.json({ success: true })
-    upload(req,res,function(err){
-        if(err){
-            return res.status(500).json(err);
-        }
-        else
-        {
-            let counter=0;
-            fileNames.forEach(filename => {
-                counter++;
-                if(counter==fileNames.length)
-                {
-                    fileNames=[]
-                    counter=0;
-                    return res.status(200).json({statu:true,item:req.file})
-                }  
-            })
-        }
-    })*/
 }

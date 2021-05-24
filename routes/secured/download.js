@@ -10,6 +10,9 @@ exports.download = function (req, res) {
   var username   = req.username;
   var items      = req.query.items;
   var outputName = req.query.output;
+
+  
+
   if (Client !== null && Client.isConnected()) {
     Client.connection.sftp((sftp_err, sftp) => {
       if (Array.from(items).length > 1) {
@@ -62,6 +65,12 @@ exports.download = function (req, res) {
                 })
                 const filestream = sftp.createReadStream(downloadOutput);
                 filestream.on('end', () => {
+                  console.log("end")
+                  sftp.unlink(downloadOutput, () => {
+                    sftp.end();
+                  });
+                })
+                req.on('close',()=>{
                   sftp.unlink(downloadOutput, () => {
                     sftp.end();
                   });
@@ -94,6 +103,9 @@ exports.download = function (req, res) {
               })
             })
           }
+
+          
+
         })
       }
     });
