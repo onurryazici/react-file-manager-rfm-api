@@ -1,4 +1,4 @@
-var SshSession      = require('../../helper/session');
+var SessionManagement      = require('../../helper/session');
 var HelperFunctions = require('../../helper/functions');
 exports.removePermission = function (req,res) {
     //  <Summary>
@@ -15,7 +15,7 @@ exports.removePermission = function (req,res) {
     //  "message": "error"
     //  </Summary>
 
-    var Client = SshSession.getClient(req.username);
+    var Client = SessionManagement.getClient(req.username);
     var item   = req.body.item;
     var user   = req.body.user;
 
@@ -25,7 +25,7 @@ exports.removePermission = function (req,res) {
         var userPermissionCommand        = `setfacl -Rx ${"d:user:" + user} ${itemPath}`;
         var defaultUserPermissionCommand = `setfacl -Rx ${"user:" + user} ${itemPath}`;
         var removePermissionCommand      = `${userPermissionCommand} && ${defaultUserPermissionCommand}`;
-        SshSession.executeSshCommand(Client, removePermissionCommand).then(() => {
+        SessionManagement.executeSshCommand(Client, removePermissionCommand).then(() => {
             res.status(200).json({
                 statu:true,
                 message:"PROCESS_SUCCESS",

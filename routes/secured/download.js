@@ -1,4 +1,4 @@
-const SshSession = require('../../helper/session');
+const SessionManagement = require('../../helper/session');
 const HelperFunctions = require('../../helper/functions');
 const mime = require('mime');
 exports.download = function (req, res) {
@@ -6,7 +6,7 @@ exports.download = function (req, res) {
   /// "location" : Encoded Current directory with base64
   /// "dirname"  : Encoded new folder name with base64
 
-  var Client     = SshSession.getClient(req.username);
+  var Client     = SessionManagement.getClient(req.username);
   var username   = req.username;
   var items      = req.query.items;
   var outputName = req.query.output;
@@ -25,7 +25,7 @@ exports.download = function (req, res) {
           const command = `cd ${HelperFunctions.replaceSpecialChars(itemParentPath)}`
             + ` && zip -r -0 /home/${username}/drive-downloads/${zipName} ${parsedItems.join(' ')}`
 
-            SshSession.executeSshCommand(Client, command).then(() => {
+            SessionManagement.executeSshCommand(Client, command).then(() => {
             const downloadOutput = `/home/${username}/drive-downloads/${zipName}`
             sftp.stat(downloadOutput, (err, downloadStat) => {
               var mimetype = mime.getType(downloadOutput);
@@ -54,7 +54,7 @@ exports.download = function (req, res) {
             const zipName = outputName;
             const command = `cd ${HelperFunctions.replaceSpecialChars(itemParentPath)}`
               + ` && zip -r -0 /home/${username}/drive-downloads/${HelperFunctions.replaceSpecialChars(zipName)} ${HelperFunctions.replaceSpecialChars(itemName)}`
-            SshSession.executeSshCommand(Client, command).then(() => {
+            SessionManagement.executeSshCommand(Client, command).then(() => {
               const downloadOutput = `/home/${username}/drive-downloads/${zipName}`
               sftp.stat(downloadOutput, (errstat, downloadStat) => {
                 var mimetype = mime.getType(downloadOutput);

@@ -1,4 +1,4 @@
-const SshSession      = require('../../helper/session');
+const SessionManagement      = require('../../helper/session');
 const HelperFunctions = require('../../helper/functions');
 const jwt             = require('jsonwebtoken');
 const Client          = require('node-ssh').NodeSSH;
@@ -24,7 +24,7 @@ exports.userAuthentication = async function(req,res){
             keepaliveInterval : 30 * 1000, // 30 minutes for idle as milliseconds
             keepaliveCountMax : 1,
         }).then(()=>{
-            SshSession.addClient(req.body.username, client)
+            SessionManagement.addClient(req.body.username, client)
             const payload = req.body.username;
             const token = jwt.sign({payload},req.app.get('api_secret_key'),{
                 expiresIn: '30m' //30 min

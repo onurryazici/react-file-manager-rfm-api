@@ -1,4 +1,4 @@
-var SshSession      = require('../../helper/session');
+var SessionManagement      = require('../../helper/session');
 var HelperFunctions = require('../../helper/functions');
 exports.createCopy = async function (req,res) {
     //  <Summary>
@@ -15,7 +15,7 @@ exports.createCopy = async function (req,res) {
     //  "message": "error"
     //  </Summary>
 
-    var Client         = SshSession.getClient(req.username);
+    var Client         = SessionManagement.getClient(req.username);
     var unparsedItems  = req.body.items;
     var target         = req.body.target;
 
@@ -27,7 +27,7 @@ exports.createCopy = async function (req,res) {
             //console.log(_target);
             //console.log(items.join(' '));
             const command = `CopyItem.run ${_target} ${items.join(' ')} && ${updatePermissionCommand}`;
-            SshSession.executeSshCommand(Client, command).then(()=>{
+            SessionManagement.executeSshCommand(Client, command).then(()=>{
                 res.status(200).json({
                     statu:true,
                     message:"PROCESS_SUCCESS",

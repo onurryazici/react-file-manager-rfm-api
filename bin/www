@@ -3,7 +3,8 @@
 /**
  * Module dependencies.
  */
-
+const socketIo    = require("socket.io"); ///////////////////////
+var SessionManagement = require('../helper/session');/////////
 var app = require('../app');
 var debug = require('debug')('rfm-api:server');
 var http = require('http');
@@ -20,10 +21,72 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
-
 /**
  * Listen on provided port, on all network interfaces.
  */
+
+///////////// SOCKET START ////////////
+const io = socketIo(server,{
+  cors:{
+    origin:"http://localhost:3000", // BURAYA MESSENGER UI'nin çalıştığı ip:port gelecek (sunucunun)
+    methods:["GET","POST"],
+    credentials:true
+  }
+});
+
+
+io.on("connection", (socket) => {
+  console.log("New client connected");
+
+  socket.on("USER_CONNECTED", (username)=>{
+    if(username!==null){
+      SessionManagement.addSocket(username,socket.id)
+    }
+  })
+
+  socket.on("JOIN_ROOM", (username, roomPath)=>{
+    const socketId = SessionManagement.getSocket(username)
+    socket.join(roomPath)
+    var rooms = io.sockets.adapter.rooms
+    var roomMaps = new Map(rooms)
+
+    let leaveFromRoom = [...roomMaps.entries()].forEach(({1:val,0:key})=>{
+      if(key!==roomPath && key!==socketId && [...val].includes(socketId))
+      {
+        console.log("***********")
+        console.log([...val])
+        console.log([...val].includes(socketId))
+        console.log(key)
+        socket.leave(key)
+        console.log(roomMaps)
+      }
+    })
+    leaveFromRoom;
+
+  })
+
+  socket.on("CREATE_FOLDER", (newFolder, roomPath)=>{
+    socket.broadcast.to(roomPath).emit("SOMEONE_HAS_CREATED_FOLDER", newFolderName)
+    console.log("CREATE_FOLDER")
+    console.log("newfolder " + newFolder)
+    console.log("roompath " + roomPath )
+    //console.log(io.sockets.adapter.rooms)
+  })
+})
+
+
+
+
+
+
+
+
+
+//////////// SOCKET END ///////////////
+
+
+
+
 
 server.listen(port);
 server.on('error', onError);
@@ -87,4 +150,8 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+}
+
+module.exports={
+  server
 }

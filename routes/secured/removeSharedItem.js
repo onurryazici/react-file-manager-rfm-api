@@ -1,4 +1,4 @@
-var SshSession = require('../../helper/session');
+var SessionManagement = require('../../helper/session');
 var HelperFunctions = require('../../helper/functions');
 exports.removeSharedItem = function (req,res) {
     //  <Summary>
@@ -14,14 +14,14 @@ exports.removeSharedItem = function (req,res) {
     //  "statu": false
     //  "items": []
     //  </Summary>
-    var Client         = SshSession.getClient(req.username);
+    var Client         = SessionManagement.getClient(req.username);
     var unparsedItems  = req.body.items;
     if(Client !== null && Client.isConnected()) 
     {
         ParseItems(unparsedItems).then((parsedItems)=>{
           var command = `rm -rf ${parsedItems.join(' ')}`
           console.log(command)
-          SshSession.executeSshCommand(Client, command).then(()=>{
+          SessionManagement.executeSshCommand(Client, command).then(()=>{
               res.status(200).json({statu:true, message:"PROCESS_SUCCESS"});
           }).catch((err)=>{
               res.status(400).json({statu:false, items:[]})

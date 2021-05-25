@@ -1,4 +1,4 @@
-const SshSession         = require('../../helper/session');
+const SessionManagement         = require('../../helper/session');
 exports.createDirectory = async function (req,res) {
   //  <Summary>
     //  ----------------- INPUT PARAMETERS --------------------
@@ -27,7 +27,7 @@ exports.createDirectory = async function (req,res) {
     //  "statu": false
     //  "message": ""
     //  </Summary>
-  var Client   = SshSession.getClient(req.username);
+  var Client   = SessionManagement.getClient(req.username);
   var username = req.username
   var location = req.body.location;
   var dirname  = req.body.dirname;

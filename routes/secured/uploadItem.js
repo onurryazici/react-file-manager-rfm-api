@@ -1,4 +1,4 @@
-var SshSession      = require('../../helper/session');
+var SessionManagement      = require('../../helper/session');
 var HelperFunctions = require('../../helper/functions');
 
 exports.uploadItem = function (req,res) {
@@ -15,7 +15,7 @@ exports.uploadItem = function (req,res) {
     //  "statu": false
     //  "message": "error"
     //  </Summary>
-    var Client         = SshSession.getClient(req.username);
+    var Client         = SessionManagement.getClient(req.username);
     var targetLocation = HelperFunctions.replaceSpecialChars(req.query.targetLocation);
     if(Client !== null && Client.isConnected()) 
     {
@@ -39,7 +39,7 @@ exports.uploadItem = function (req,res) {
                     })
                 }).then(()=>{
                     const command = `GetData.run ${HelperFunctions.replaceSpecialChars(finalTarget)}`
-                    SshSession.executeSshCommand(Client, command).then((output)=>{
+                    SessionManagement.executeSshCommand(Client, command).then((output)=>{
                         res.status(200).json(JSON.parse(output));
                     })}).catch((err)=>{
                         res.status(400).json({statu:false,items:[],message:err})

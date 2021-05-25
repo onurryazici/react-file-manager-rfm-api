@@ -1,4 +1,4 @@
-var SshSession = require('../../helper/session');
+var SessionManagement = require('../../helper/session');
 const sharp    = require('sharp');
 exports.getImage = async function (req,res) {
     //  <Summary>
@@ -13,7 +13,7 @@ exports.getImage = async function (req,res) {
     //  [FALSE STATE]
     //  DISCONNECTING PIPING
     //  </Summary>
-    var Client       = SshSession.getClient(req.username);
+    var Client       = SessionManagement.getClient(req.username);
     var absolutePath = req.query.absolutePath;
     var width        = req.query.width;
     var height       = req.query.height;

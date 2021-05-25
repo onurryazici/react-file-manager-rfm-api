@@ -1,4 +1,4 @@
-var SshSession      = require('../../helper/session');
+var SessionManagement      = require('../../helper/session');
 var HelperFunctions = require('../../helper/functions');
 exports.restoreItems = function (req,res) {
     //  <Summary>
@@ -13,7 +13,7 @@ exports.restoreItems = function (req,res) {
     //  "statu": false
     //  "message": "error"
     //  </Summary>
-    var Client        = SshSession.getClient(req.username);
+    var Client        = SessionManagement.getClient(req.username);
     var username      = req.username;
     var unparsedItems = req.body.items;
     if(Client !== null && Client.isConnected()) 
@@ -30,7 +30,7 @@ exports.restoreItems = function (req,res) {
               const newRestoreName       = `${parentPath}/[restored(${new Date().getMilliseconds()})]-${itemName}`
               const recycleInfoLocation  = `/home/${username}/.local/share/Trash/info/${itemName}.trashinfo`;
               const command = `mv ${HelperFunctions.replaceSpecialChars(absolutePath)} ${HelperFunctions.replaceSpecialChars(newRestoreName)} && rm -rf ${HelperFunctions.replaceSpecialChars(recycleInfoLocation)}`;
-              SshSession.executeSshCommand(Client, command).then(()=>{
+              SessionManagement.executeSshCommand(Client, command).then(()=>{
                 resolve();
               }).catch(()=>{
                 reject();

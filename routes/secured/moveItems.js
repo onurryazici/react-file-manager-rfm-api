@@ -1,4 +1,4 @@
-var SshSession      = require('../../helper/session');
+var SessionManagement      = require('../../helper/session');
 var HelperFunctions = require('../../helper/functions');
 exports.moveItems = function (req,res) {
     //  <Summary>
@@ -14,7 +14,7 @@ exports.moveItems = function (req,res) {
     //  "statu": false
     //  "message": "error"
     //  </Summary>
-    var Client        = SshSession.getClient(req.username);
+    var Client        = SessionManagement.getClient(req.username);
     var unparsedItems = req.body.items;
     var target        = req.body.target;
     //const updatePermissionCommand = `setfacl -Rbk ${items.join(' ')} ` /// önemli izinleri sıfırlar otherlar : --x
@@ -24,7 +24,7 @@ exports.moveItems = function (req,res) {
             target = HelperFunctions.replaceSpecialChars(target);
             let command = `MoveItem.run  ${target} ${items.join(' ')}`;
             console.log(items.join(' '));
-            SshSession.executeSshCommand(Client, command).then(()=>{
+            SessionManagement.executeSshCommand(Client, command).then(()=>{
                 res.status(200).json({
                     statu:true,
                     message:"PROCESS_SUCCESS",

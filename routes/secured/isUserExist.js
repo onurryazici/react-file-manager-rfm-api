@@ -1,4 +1,4 @@
-var SshSession = require('../../helper/session');
+var SessionManagement = require('../../helper/session');
 exports.isUserExist = function (req,res) {
     //  <Summary>
     //  ----------------- INPUT PARAMETERS --------------------
@@ -12,12 +12,12 @@ exports.isUserExist = function (req,res) {
     //  "statu": false
     //  "message": "NO_SUCH_USER"
     //  </Summary>
-    var Client = SshSession.getClient(req.username);
+    var Client = SessionManagement.getClient(req.username);
     var user   = req.body.user;
 
     if(Client !== null && Client.isConnected()) 
     {
-        SshSession.executeSshCommand(Client, `getent passwd ${user}`).then((exist)=>{
+        SessionManagement.executeSshCommand(Client, `getent passwd ${user}`).then((exist)=>{
             if (exist.length > 0){
                 return res.status(200).json({
                     statu:true,

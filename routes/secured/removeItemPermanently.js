@@ -1,4 +1,4 @@
-var SshSession      = require('../../helper/session');
+var SessionManagement      = require('../../helper/session');
 var HelperFunctions = require('../../helper/functions');
 exports.removeItemPermanently = function (req,res) {
     //  <Summary>
@@ -14,7 +14,7 @@ exports.removeItemPermanently = function (req,res) {
     //  "statu": false
     //  "items": []
     //  </Summary>
-    var Client         = SshSession.getClient(req.username);
+    var Client         = SessionManagement.getClient(req.username);
     var username       = req.username;
     var unparsedItems  = req.body.items;
 

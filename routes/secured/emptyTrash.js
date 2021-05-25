@@ -1,4 +1,4 @@
-var SshSession = require('../../helper/session');
+var SessionManagement = require('../../helper/session');
 exports.emptyTrash = function (req,res) {
     //  <Summary>
     //  ----------------- INPUT PARAMETERS --------------------
@@ -12,10 +12,10 @@ exports.emptyTrash = function (req,res) {
     //  "statu": false
     //  "message": "error"
     //  </Summary>
-    var Client = SshSession.getClient(req.username);
+    var Client = SessionManagement.getClient(req.username);
     if(Client !== null && Client.isConnected()) 
     {
-        SshSession.executeSshCommand(Client, "trash-empty").then(()=>{
+        SessionManagement.executeSshCommand(Client, "trash-empty").then(()=>{
             res.status(200).json({statu:true, message:"PROCESS_SUCCESS"});
         }).catch((err)=>{
             console.log(err)

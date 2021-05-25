@@ -1,4 +1,4 @@
-var SshSession = require('../../helper/session');
+var SessionManagement = require('../../helper/session');
 var HelperFunctions = require('../../helper/functions');
 exports.moveToDrive    = function (req,res) {
     //  <Summary>
@@ -13,7 +13,7 @@ exports.moveToDrive    = function (req,res) {
     //  "statu": false
     //  "message": "error"
     //  </Summary>
-    var Client        = SshSession.getClient(req.username);
+    var Client        = SessionManagement.getClient(req.username);
     var unparsedItems = req.body.items;
     var username      = req.username;
 
@@ -22,7 +22,7 @@ exports.moveToDrive    = function (req,res) {
         ParseItems(unparsedItems).then((items)=>{
             var target  = `/home/${username}/drive`;
             let command = `MoveItem.run  ${target} ${items.join(' ')}`;
-            SshSession.executeSshCommand(Client, command).then(()=>{
+            SessionManagement.executeSshCommand(Client, command).then(()=>{
                 return res.status(200).json({statu:true, message:"PROCESS_SUCCESS"});
             }).catch((err)=>{
                 return res.status(400).json({statu:false,message:err})

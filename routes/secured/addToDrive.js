@@ -1,4 +1,4 @@
-var SshSession      = require('../../helper/session');
+var SessionManagement      = require('../../helper/session');
 var HelperFunctions = require('../../helper/functions');
 exports.addToDrive = function (req,res) {
     //  <Summary>
@@ -14,7 +14,7 @@ exports.addToDrive = function (req,res) {
     //  "message": "error"
     //  </Summary>
 
-    var Client         = SshSession.getClient(req.username);
+    var Client         = SessionManagement.getClient(req.username);
     var unparsedItems  = req.body.items;
     var target         = `/home/${req.username}/drive`
 
@@ -25,7 +25,7 @@ exports.addToDrive = function (req,res) {
             const updatePermissionCommand = `setfacl -Rbk ${items.map(e=>e.newPath).join(' ')} && setfacl -Rm o:--x ${items.map(e=>e.newPath).join(' ')}` /// önemli izinleri sıfırlar otherlar : --x
             const command = `CopyItem.run ${_target} ${items.map(e=>e.oldPath).join(' ')} && ${updatePermissionCommand}`;
             console.log(command)
-            SshSession.executeSshCommand(Client, command).then(()=>{
+            SessionManagement.executeSshCommand(Client, command).then(()=>{
                 res.status(200).json({
                     statu:true,
                     message:"PROCESS_SUCCESS",

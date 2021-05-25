@@ -1,4 +1,4 @@
-var SshSession      = require('../../helper/session');
+var SessionManagement      = require('../../helper/session');
 var HelperFunctions = require('../../helper/functions');
 exports.moveToTrash = function (req,res) {
     //  <Summary>
@@ -15,7 +15,7 @@ exports.moveToTrash = function (req,res) {
     //  "message": "error"
     //  </Summary>
 
-    var Client        = SshSession.getClient(req.username);
+    var Client        = SessionManagement.getClient(req.username);
     var unparsedItems = req.body.items;
     var target        = req.body.location;
     
@@ -23,7 +23,7 @@ exports.moveToTrash = function (req,res) {
     {
       ParseItems(unparsedItems,target).then((parsedItems)=>{
         var command = `trash-put ${parsedItems.join(' ')}`;
-        SshSession.executeSshCommand(Client, command)
+        SessionManagement.executeSshCommand(Client, command)
         .then(()=>{
             res.status(200).json({statu:true, message:"PROCESS_SUCCESS"});
         }).catch((err)=>{

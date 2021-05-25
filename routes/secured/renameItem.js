@@ -1,4 +1,4 @@
-var SshSession = require('../../helper/session');
+var SessionManagement = require('../../helper/session');
 
 exports.renameItem = function (req,res) {
     //  <Summary>
@@ -20,7 +20,7 @@ exports.renameItem = function (req,res) {
     //  </Summary>
     
   
-    var Client    = SshSession.getClient(req.username);
+    var Client    = SessionManagement.getClient(req.username);
     var item      = req.body.itemPath;
     var type      = req.body.type;
     var extension = req.body.extension;

@@ -1,5 +1,5 @@
 const Messages           = require('../../helper/message');
-const SshSession         = require('../../helper/session');
+const SessionManagement         = require('../../helper/session');
 const HelperFunctions    = require('../../helper/functions');
 const RFM_WindowType     = {
     DRIVE:"DRIVE",
@@ -36,7 +36,7 @@ exports.getDirectory = function (req,res) {
     //  "statu": false
     //  "items": []
     //  </Summary>
-    var Client     = SshSession.getClient(req.username);
+    var Client     = SessionManagement.getClient(req.username);
     var username   = req.username//API.getUsername();
     var location   = HelperFunctions.replaceSpecialChars(req.body.location);
     var rfmWindow  = req.body.rfmWindow
@@ -45,7 +45,7 @@ exports.getDirectory = function (req,res) {
         var target  = location;
         var command = `GetData.run ${target}`;
         console.log(command)
-        SshSession.executeSshCommand(Client, command).then((output)=>{
+        SessionManagement.executeSshCommand(Client, command).then((output)=>{
             const data = JSON.parse(output)
             if(Array.from(data.items).length > 0) {
                 if(rfmWindow === RFM_WindowType.RECYCLE_BIN){
@@ -87,7 +87,7 @@ function GetRecycleInfo(data,_client, _username){
                 var p = new Promise(resolve => {
                     const recycleInfoLocation = `/home/${_username}/.local/share/Trash/info/${HelperFunctions.replaceSpecialChars(itemObject[i].name)}.trashinfo`
                     const getInfoCommand = `cat ${recycleInfoLocation} | head -2 | tail -1 | cut -c 6-` 
-                    SshSession.executeSshCommand(_client,getInfoCommand).then((out)=>{
+                    SessionManagement.executeSshCommand(_client,getInfoCommand).then((out)=>{
                         itemObject[i].restorePath = HelperFunctions.replaceSpecialChars(out);
                         newItemObject.push(itemObject[i])
                         resolve();

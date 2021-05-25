@@ -1,4 +1,4 @@
-var SshSession      = require('../../helper/session');
+var SessionManagement      = require('../../helper/session');
 exports.updatePermission = function (req,res) {
     //  <Summary>
     //  ----------------- INPUT PARAMETERS --------------------
@@ -14,7 +14,7 @@ exports.updatePermission = function (req,res) {
     //  "statu": false
     //  "message": "error"
     //  </Summary>
-    var Client      = SshSession.getClient(req.username);
+    var Client      = SessionManagement.getClient(req.username);
     var user        = req.body.user;
     var permission  = req.body.permission;
     var itemPath    = req.body.itemPath;
@@ -23,7 +23,7 @@ exports.updatePermission = function (req,res) {
         var updateD_PermissionCommand=`setfacl -Rm d:${user}:${permission} ${itemPath}`;
         var updateU_PermissionCommand=`setfacl -Rm u:${user}:${permission} ${itemPath}`;
         var command = `${updateD_PermissionCommand} && ${updateU_PermissionCommand}`;
-        SshSession.executeSshCommand(Client, command).then(()=>{
+        SessionManagement.executeSshCommand(Client, command).then(()=>{
             return res.status(200).json({
                 statu:true,
                 message:"PROCESS_SUCCESS",

@@ -1,4 +1,4 @@
-var SshSession = require('../../helper/session');
+var SessionManagement = require('../../helper/session');
 var API_FUNCTIONS = require('../../helper/functions');
 exports.newShareItem = function (req,res) {
     //  <Summary>
@@ -15,7 +15,7 @@ exports.newShareItem = function (req,res) {
     //  "message": "error"
     //  </Summary>
 
-    var Client = SshSession.getClient(req.username);
+    var Client = SessionManagement.getClient(req.username);
     var itemPath = req.body.itemPath;
     var userData = req.body.userData;
 
@@ -25,7 +25,7 @@ exports.newShareItem = function (req,res) {
         
         const command = `NewShare.run ${itemPathStr} ${userData.join(' ')}`
         console.log(command)
-        SshSession.executeSshCommand(Client, command).then((output)=>{
+        SessionManagement.executeSshCommand(Client, command).then((output)=>{
             return res.status(200).json({
                 statu:true,
                 message:output.message,

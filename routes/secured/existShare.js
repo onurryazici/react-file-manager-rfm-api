@@ -1,4 +1,4 @@
-var SshSession = require('../../helper/session');
+var SessionManagement = require('../../helper/session');
 var HelperFunctions = require('../../helper/functions');
 exports.existShareItem = function (req,res) {
     //  <Summary>
@@ -17,7 +17,7 @@ exports.existShareItem = function (req,res) {
     //  "message": "error"
     //  </Summary>
 
-    var Client     = SshSession.getClient(req.username);
+    var Client     = SessionManagement.getClient(req.username);
     var itemPath   = req.body.itemPath;
     var user       = req.body.user;
     var permission = req.body.permission;
@@ -26,7 +26,7 @@ exports.existShareItem = function (req,res) {
     {
         const itemPathStr = HelperFunctions.replaceSpecialChars(itemPath);  
         const command     = `ExistShare.run ${location} ${itemPathStr} ${user}:${permission}`
-        SshSession.executeSshCommand(Client, command).then((output)=>{
+        SessionManagement.executeSshCommand(Client, command).then((output)=>{
             return res.status(200).json({
                 statu:true,
                 message:"PROCESS_SUCCESS",
