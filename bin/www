@@ -65,12 +65,20 @@ io.on("connection", (socket) => {
 
   })
 
-  socket.on("CREATE_FOLDER", (newFolder, roomPath)=>{
+  socket.on("CREATE_FOLDER", (newFolderName, roomPath)=>{
     socket.broadcast.to(roomPath).emit("SOMEONE_HAS_CREATED_FOLDER", newFolderName)
     console.log("CREATE_FOLDER")
-    console.log("newfolder " + newFolder)
+    console.log("newfolder " + newFolderName)
     console.log("roompath " + roomPath )
     //console.log(io.sockets.adapter.rooms)
+  })
+
+  socket.on("DELETE_ITEMS", (deletedItems, roomPath)=>{
+    socket.broadcast.to(roomPath).emit("SOMEONE_HAS_DELETED_ITEMS", deletedItems)
+  })
+
+  socket.on("RENAME_ITEM", (oldName, type, newName, roomPath)=>{
+    socket.broadcast.to(roomPath).emit("SOMEONE_HAS_RENAMED_ITEM", oldName, type,newName)
   })
 })
 

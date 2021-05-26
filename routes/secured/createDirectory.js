@@ -1,4 +1,5 @@
-const SessionManagement         = require('../../helper/session');
+const SessionManagement = require('../../helper/session');
+var HelperFunctions     = require('../../helper/functions');
 exports.createDirectory = async function (req,res) {
   //  <Summary>
     //  ----------------- INPUT PARAMETERS --------------------
@@ -36,28 +37,23 @@ exports.createDirectory = async function (req,res) {
     if(Client !== null && Client.isConnected()) 
     {
       Client.connection.sftp((sftp_err,sftp) => {
-            if (sftp_err){
-              res.status(400).json({statu:false,message:"UNKNOWN_ERROR"});}
-            sftp.mkdir(newDirectoryPath, function(error) {
-              
+            sftp.mkdir(newDirectoryPath, function(error) {  
             if (error) {
-              res.status(304).json({statu:false,message:"UNKNOWN_ERROR",details:error.code});
+              res.status(400).json({statu:false,message:"UNKNOWN_ERROR",details:error.code});
             } else {
-              const item={
-                owner:username,
-                extension:"",
-                read:true,
-                size:"4 Kb",
-                lastModifyTime:new Date().getDate(),
-                name:dirname,
-                absolutePath:location+"/"+dirname,
-                type:"directory",
-                sharedWith:[],
-                write:true,
-                execute:true
-              }
-              sftp.end();
-              res.status(200).json({statu:true,item:item,message:"DIRECTORY_CREATE_SUCCESS"});
+              //"getfacl -pa \'" + destination + "\' | setfacl -RM- \'" + destinationF.toPath() + "\'";
+              const parentPath = HelperFunctions.replaceSpecialChars(location)
+              const itemPath   = HelperFunctions.replaceSpecialChars(newDirectoryPath) 
+              const updateCommand = `CopyPermissions.run ${parentPath} ${itemPath}`
+              const dataCommand   = `GetDataSingle.run ${HelperFunctions.replaceSpecialChars(newDirectoryPath)}`
+              const command       = `${updateCommand} && ${dataCommand}` 
+              console.log(command)
+              SessionManagement.executeSshCommand(Client, command).then((output)=>{
+                const data = JSON.parse(output)
+                res.status(200).json(data)
+              }).catch((err)=>{
+                  res.status(400).json({statu:false,message:err})
+              }).finally(()=>sftp.end())
             }
           });
       });
