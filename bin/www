@@ -27,11 +27,11 @@ var server = http.createServer(app);
 
 ///////////// SOCKET START ////////////
 const io = socketIo(server,{
-  cors:{
-    origin:"http://localhost:3000", // BURAYA MESSENGER UI'nin çalıştığı ip:port gelecek (sunucunun)
-    methods:["GET","POST"],
-    credentials:true
-  }
+  	cors:{
+    	origin:"http://localhost:3000", // BURAYA MESSENGER UI'nin çalıştığı ip:port gelecek (sunucunun)
+    	methods:["GET","POST"],
+    	credentials:true
+  	}
 });
 
 
@@ -40,46 +40,46 @@ io.on("connection", (socket) => {
 
   socket.on("USER_CONNECTED", (username)=>{
     if(username!==null){
-      SessionManagement.addSocket(username,socket.id)
+      	SessionManagement.addSocket(username,socket.id)
     }
   })
 
-  socket.on("JOIN_ROOM", (username, roomPath)=>{
-    const socketId = SessionManagement.getSocket(username)
-    socket.join(roomPath)
-    var rooms = io.sockets.adapter.rooms
-    var roomMaps = new Map(rooms)
+	socket.on("JOIN_ROOM", (username, roomPath) => {
+		const socketId = SessionManagement.getSocket(username)
+		socket.join(roomPath)
+		var rooms = io.sockets.adapter.rooms
+		var roomMaps = new Map(rooms)
 
-    let leaveFromRoom = [...roomMaps.entries()].forEach(({1:val,0:key})=>{
-      if(key!==roomPath && key!==socketId && [...val].includes(socketId))
-      {
-        console.log("***********")
-        console.log([...val])
-        console.log([...val].includes(socketId))
-        console.log(key)
-        socket.leave(key)
-        console.log(roomMaps)
-      }
-    })
-    leaveFromRoom;
+		let leaveFromRoom = [...roomMaps.entries()].forEach(({1:val,0:key})=>{
+		if(key!==roomPath && key!==socketId && [...val].includes(socketId))
+		{
+			console.log("***********")
+			console.log([...val])
+			console.log([...val].includes(socketId))
+			console.log(key)
+			socket.leave(key)
+			console.log(roomMaps)
+		}
+		})
+		leaveFromRoom;
 
-  })
+	})
 
-  socket.on("CREATE_FOLDER", (newFolderName, roomPath)=>{
-    socket.broadcast.to(roomPath).emit("SOMEONE_HAS_CREATED_FOLDER", newFolderName)
-    console.log("CREATE_FOLDER")
-    console.log("newfolder " + newFolderName)
-    console.log("roompath " + roomPath )
-    //console.log(io.sockets.adapter.rooms)
-  })
+	socket.on("CREATE_FOLDER", (newFolderName, roomPath) => {
+		socket.broadcast.to(roomPath).emit("SOMEONE_HAS_CREATED_FOLDER", newFolderName)
+	})
 
-  socket.on("DELETE_ITEMS", (deletedItems, roomPath)=>{
-    socket.broadcast.to(roomPath).emit("SOMEONE_HAS_DELETED_ITEMS", deletedItems)
-  })
+	socket.on("DELETE_ITEMS", (deletedItems, roomPath) => {
+		socket.broadcast.to(roomPath).emit("SOMEONE_HAS_DELETED_ITEMS", deletedItems)
+	})
 
-  socket.on("RENAME_ITEM", (oldName, type, newName, roomPath)=>{
-    socket.broadcast.to(roomPath).emit("SOMEONE_HAS_RENAMED_ITEM", oldName, type,newName)
-  })
+	socket.on("RENAME_ITEM", (oldName, newName, roomPath) => {
+		socket.broadcast.to(roomPath).emit("SOMEONE_HAS_RENAMED_ITEM", oldName, newName)
+	})
+
+	socket.on("UPLOAD_ITEM", (itemName,roomPath) => {
+		socket.broadcast.to(roomPath).emit("SOMEONE_HAS_UPLOADED_ITEM", itemName)
+	})
 })
 
 

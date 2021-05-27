@@ -1,5 +1,5 @@
-var SessionManagement      = require('../../helper/session');
-var HelperFunctions = require('../../helper/functions');
+var SessionManagement = require('../../helper/session');
+var HelperFunctions   = require('../../helper/functions');
 
 exports.uploadItem = function (req,res) {
     //  <Summary>
@@ -15,19 +15,21 @@ exports.uploadItem = function (req,res) {
     //  "statu": false
     //  "message": "error"
     //  </Summary>
-    var Client         = SessionManagement.getClient(req.username);
-    var targetLocation = HelperFunctions.replaceSpecialChars(req.query.targetLocation);
+    var Client         = SessionManagement.getClient(req.username)
+    var targetLocation = HelperFunctions.replaceSpecialChars(req.query.targetLocation)
     if(Client !== null && Client.isConnected()) 
     {
         Client.connection.sftp((sftp_err,sftp) => {
             const filename = req.file.originalname;
-            const target = `${targetLocation}/${filename}`;
-            sftp.exists(target,(exist)=>{
-                var suitableName = "";
+            const target   = `${targetLocation}/${filename}`
+            sftp.exists(target, (exist) => {
+                var suitableName = ""
                 if(exist)
-                    suitableName=`(uploaded-${new Date().getTime()}) ${filename}`;
+                    suitableName = `(uploaded-${new Date().getTime()}) ${filename}`
                 else
-                    suitableName=filename;
+                    suitableName = filename
+
+
                 const finalTarget = `${req.query.targetLocation}/${suitableName}`
                 return new Promise((resolve,reject)=>{
                     sftp.writeFile(`${finalTarget}`,req.file.buffer,"binary",(err)=>{
@@ -38,7 +40,12 @@ exports.uploadItem = function (req,res) {
                             resolve();
                     })
                 }).then(()=>{
-                    const command = `GetData.run ${HelperFunctions.replaceSpecialChars(finalTarget)}`
+                    const parentPath = targetLocation
+                    const itemPath   = HelperFunctions.replaceSpecialChars(finalTarget)
+                    const copyPermissionsCommand = `CopyPermissions.run ${parentPath} ${itemPath}`
+                    const getDataCommand         = `GetDataSingle.run ${itemPath}`
+                    const command    = `${copyPermissionsCommand} && ${getDataCommand}`
+
                     SessionManagement.executeSshCommand(Client, command).then((output)=>{
                         res.status(200).json(JSON.parse(output));
                     })}).catch((err)=>{
