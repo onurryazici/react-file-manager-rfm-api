@@ -20,18 +20,16 @@ exports.removeItemPermanently = function (req,res) {
 
     if(Client !== null && Client.isConnected()) 
     {
-      ParseItems(unparsedItems,username).then((parsedItems)=>{
-        var command = `rm -rf ${parsedItems.join(' ')}`
-        console.log(command)
-        Client.executeSshCommand(Client, command).then(()=>{
-            res.status(200).json({statu:true, message:"ITEM_REMOVE_PERMANENTLY_SUCCESS"});
-        }).catch((err)=>{
-            res.status(400).json({statu:false, items:[]})
-        })
-      })
-      .catch((err)=>{
-        console.log(err)
-      })
+		ParseItems(unparsedItems,username).then((parsedItems)=>{
+			var command = `rm -rf ${parsedItems.join(' ')}`
+			SessionManagement.executeSshCommand(Client, command).then(()=>{
+				res.status(200).json({statu:true, message:"ITEM_REMOVE_PERMANENTLY_SUCCESS"});
+			}).catch((err)=>{
+				res.status(400).json({statu:false, items:[]})
+			})
+		}).catch((err)=>{
+			console.log(err)
+		})
     }
 }
 function ParseItems(unparsedItems,_username){

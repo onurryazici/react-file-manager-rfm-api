@@ -52,7 +52,7 @@ exports.createDirectory = async function (req,res) {
                 const data = JSON.parse(output)
                 res.status(200).json(data)
               }).catch((err)=>{
-                  res.status(400).json({statu:false,message:err})
+                  res.status(200).json({statu:false,message:err})
               }).finally(()=>sftp.end())
             }
           });

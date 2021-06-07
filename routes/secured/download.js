@@ -66,9 +66,9 @@ exports.download = function (req, res) {
                 const filestream = sftp.createReadStream(downloadOutput);
                 filestream.on('end', () => {
                   console.log("end")
-                  sftp.unlink(downloadOutput, () => {
+                  /*sftp.unlink(downloadOutput, () => {
                     sftp.end();
-                  });
+                  });*/
                 })
                 req.on('close',()=>{
                   sftp.unlink(downloadOutput, () => {

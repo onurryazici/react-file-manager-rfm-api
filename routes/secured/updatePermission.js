@@ -23,6 +23,7 @@ exports.updatePermission = function (req,res) {
         var updateD_PermissionCommand=`setfacl -Rm d:${user}:${permission} ${itemPath}`;
         var updateU_PermissionCommand=`setfacl -Rm u:${user}:${permission} ${itemPath}`;
         var command = `${updateD_PermissionCommand} && ${updateU_PermissionCommand}`;
+        console.log(command)
         SessionManagement.executeSshCommand(Client, command).then(()=>{
             return res.status(200).json({
                 statu:true,

@@ -20,7 +20,6 @@ exports.removeSharedItem = function (req,res) {
     {
         ParseItems(unparsedItems).then((parsedItems)=>{
           var command = `rm -rf ${parsedItems.join(' ')}`
-          console.log(command)
           SessionManagement.executeSshCommand(Client, command).then(()=>{
               res.status(200).json({statu:true, message:"PROCESS_SUCCESS"});
           }).catch((err)=>{

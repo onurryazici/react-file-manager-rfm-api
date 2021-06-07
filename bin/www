@@ -51,18 +51,17 @@ io.on("connection", (socket) => {
 		var roomMaps = new Map(rooms)
 
 		let leaveFromRoom = [...roomMaps.entries()].forEach(({1:val,0:key})=>{
-		if(key!==roomPath && key!==socketId && [...val].includes(socketId))
-		{
-			console.log("***********")
-			console.log([...val])
-			console.log([...val].includes(socketId))
-			console.log(key)
-			socket.leave(key)
-			console.log(roomMaps)
-		}
+			if(key!==roomPath && key!==socketId && [...val].includes(socketId))
+			{
+				/*console.log("***********")
+				console.log([...val])
+				console.log([...val].includes(socketId))
+				console.log(key)*/
+				socket.leave(key)
+				//console.log(roomMaps)
+			}
 		})
 		leaveFromRoom;
-
 	})
 
 	socket.on("CREATE_FOLDER", (newFolderName, roomPath) => {
@@ -79,6 +78,19 @@ io.on("connection", (socket) => {
 
 	socket.on("UPLOAD_ITEM", (itemName,roomPath) => {
 		socket.broadcast.to(roomPath).emit("SOMEONE_HAS_UPLOADED_ITEM", itemName)
+	})
+
+	socket.on("MOVE_ITEM", (fromPath, toPath, movedItems) => {
+		console.log("from path " + fromPath)
+		console.log("to path " + toPath)
+		Array.from(movedItems).forEach((itemName)=>{
+			socket.broadcast.to(fromPath).emit("SOMEONE_HAS_MOVED_FROM_HERE", itemName)
+			socket.broadcast.to(toPath).emit("SOMEONE_HAS_MOVED_TO_HERE", itemName)
+		})
+	})
+
+	socket.on("UPDATE_PERMISSION", (roomPath) => {
+		
 	})
 })
 

@@ -24,8 +24,6 @@ exports.createCopy = async function (req,res) {
         ParseItems(unparsedItems).then((items)=>{
             const _target = HelperFunctions.replaceSpecialChars(target);
             const updatePermissionCommand = `setfacl -Rbk ${items.join(' ')} ` /// önemli izinleri sıfırlar otherlar : --x
-            //console.log(_target);
-            //console.log(items.join(' '));
             const command = `CopyItem.run ${_target} ${items.join(' ')} && ${updatePermissionCommand}`;
             SessionManagement.executeSshCommand(Client, command).then(()=>{
                 res.status(200).json({
@@ -33,7 +31,7 @@ exports.createCopy = async function (req,res) {
                     message:"PROCESS_SUCCESS",
                 });
             }).catch((err)=>{
-                res.status(404).json({statu:false,message:err})
+                res.status(400).json({statu:false,message:err})
             })
         });
     }
