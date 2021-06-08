@@ -20,7 +20,7 @@ exports.download = function (req, res) {
           // MULTI DOWNLOAD 
           // COMPRESS ZIP AND DOWNLOAD
           var itemPath       = items[0];
-          var itemParentPath = itemPath.substring(0, itemPath.Of('/'));
+          var itemParentPath = itemPath.substring(0, itemPath.lastIndexOf('/'));
           const zipName = outputName;
           const command = `cd ${HelperFunctions.replaceSpecialChars(itemParentPath)}`
             + ` && zip -r -0 /home/${username}/drive-downloads/${zipName} ${parsedItems.join(' ')}`
@@ -35,8 +35,10 @@ exports.download = function (req, res) {
                 'Content-Length': downloadStat.size,
               })
               const filestream = sftp.createReadStream(downloadOutput);
-              filestream.on('end', () => {
-                sftp.end();
+              req.on('close',()=>{
+                sftp.unlink(downloadOutput, () => {
+                  sftp.end();
+                });
               })
               filestream.pipe(res)
             })

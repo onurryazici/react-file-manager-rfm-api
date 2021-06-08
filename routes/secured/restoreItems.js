@@ -29,7 +29,7 @@ exports.restoreItems = function (req,res) {
               const itemName             = absolutePath.substring(absolutePath.lastIndexOf('/') + 1, absolutePath.length);
               const newRestoreName       = `${parentPath}/[restored(${new Date().getMilliseconds()})]-${itemName}`
               const recycleInfoLocation  = `/home/${username}/.local/share/Trash/info/${itemName}.trashinfo`;
-              const command = `mv ${HelperFunctions.replaceSpecialChars(absolutePath)} ${HelperFunctions.replaceSpecialChars(newRestoreName)} && rm -rf ${HelperFunctions.replaceSpecialChars(recycleInfoLocation)}`;
+              const command = `mkdir ${HelperFunctions.replaceSpecialChars(parentPath)}; mv ${HelperFunctions.replaceSpecialChars(absolutePath)} ${HelperFunctions.replaceSpecialChars(newRestoreName)} && rm -rf ${HelperFunctions.replaceSpecialChars(recycleInfoLocation)}`;
               SessionManagement.executeSshCommand(Client, command).then(()=>{
                 resolve();
               }).catch(()=>{

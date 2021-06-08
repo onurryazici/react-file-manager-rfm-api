@@ -28,7 +28,7 @@ var server = http.createServer(app);
 ///////////// SOCKET START ////////////
 const io = socketIo(server,{
   	cors:{
-    	origin:"http://localhost:3000", // BURAYA MESSENGER UI'nin çalıştığı ip:port gelecek (sunucunun)
+    	origin:"*", // BURAYA MESSENGER UI'nin çalıştığı ip:port gelecek (sunucunun)
     	methods:["GET","POST"],
     	credentials:true
   	}

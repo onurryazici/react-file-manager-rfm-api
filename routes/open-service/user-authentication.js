@@ -4,8 +4,8 @@ const jwt             = require('jsonwebtoken');
 const Client          = require('node-ssh').NodeSSH;
 
 exports.userAuthentication = async function(req,res){
-    //let ip = req.headers["X-Forwarded-For"] || req.connection.remoteAddress;
-    let ip = "192.168.1.159";
+    let ip = req.headers["X-Forwarded-For"] || req.connection.remoteAddress;
+    //let ip = "192.168.1.159";
     let banned = HelperFunctions.isIpBanned(ip);
     if(banned){
          res.json({
