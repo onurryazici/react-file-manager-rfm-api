@@ -5,8 +5,9 @@ const Client          = require('node-ssh').NodeSSH;
 
 exports.userAuthentication = async function(req,res){
     let ip = req.headers["X-Forwarded-For"] || req.connection.remoteAddress;
-    //let ip = "192.168.1.159";
-    let banned = HelperFunctions.isIpBanned(ip);
+    let ipParsed = ip.substring(ip.lastIndexOf(':') + 1, ip.length)
+    console.log(ipParsed)
+    let banned = HelperFunctions.isIpBanned(ipParsed);
     if(banned){
          res.json({
             statu   : false,
